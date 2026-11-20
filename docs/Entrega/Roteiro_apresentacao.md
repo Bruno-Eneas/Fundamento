@@ -1,27 +1,44 @@
-# Fundamento — roteiro de 15 minutos
+# Fundamento — fala e roteiro de 15 minutos
 
-**Pessoa A — 0:00 a 5:00 — problema e produto (slides 1–4)**
+**Finalidade:** apresentar um protótipo funcional e inovador de *interpretação explicável de exames fictícios*, não diagnóstico automatizado. Três integrantes — preencher os nomes reais antes de usar.
 
-Explique que o usuário informa exames e vê a interpretação rastreável. Não prometa diagnóstico. Mostre as quatro entradas laboratoriais principais e que critérios SBD 2026, ADA 2026 e NIDDK servem de referências. Declare que o foco do produto é clareza, segurança e abstenção.
+## Pessoa 1 — slides 1 a 4 (0:00–4:30)
 
-**Pessoa B — 5:00 a 10:00 — demonstração e arquitetura (slides 5–8)**
+**Slide 1.** “Somos um grupo de três integrantes e desenvolvemos o Fundamento. Nosso protótipo organiza exames relacionados ao diabetes e apresenta o resultado de forma diferente para médico e paciente, sempre com dados fictícios.”
 
-Abra a aba Exames e demonstre exemplos A, B e C. Indique a diferença entre faixa, confirmação e diagnóstico. Mostre código em `src/clinical.py` e links para as fontes. Explique que a árvore histórica com SHAP é opcional, não a parte clínica. Destaque testes específicos realizados e o que ainda não foi verificado em Windows/produção.
+**Slide 2.** “O problema que identificamos é a quantidade de números isolados que chegam ao usuário, sem mostrar de forma clara o significado e a confiabilidade da conclusão. Também há o risco de ferramentas digitais transmitirem certeza indevida ou porcentagens sem validação.”
 
-**Pessoa C — 10:00 a 15:00 — inovação, viabilidade e encerramento (slides 9–12)**
+**Slide 3.** “O médico abre o perfil de um paciente fictício, consulta resultados anteriores, adiciona um exame e acessa justificativas e fontes. O paciente vê apenas um resumo e as datas. São duas interfaces sobre a mesma estrutura de registro.”
 
-Apresente o diferencial incremental, canais acadêmicos, hipóteses de evolução em 12 meses, privacidade, publicação obrigatória e limites. Explique a ausência de probabilidade individual validada como decisão de engenharia responsável. Encaminhe para arguição: o professor prevê 20 minutos de perguntas.
+**Slide 4.** “A análise do protótipo utiliza critérios publicados pela Sociedade Brasileira de Diabetes e referencia ADA e NIDDK. Os valores não são interpretados sem conferir as condições de coleta. O programa informa quando dados estão ausentes ou inconclusivos, sem afirmar que identificou sozinho o diabetes tipo 2.”
 
-## Perguntas prováveis da banca
+## Pessoa 2 — slides 5 a 8 e demonstração local (4:30–10:30)
 
-**Por que não aparece uma probabilidade?** O modelo original não usa exames e não está validado clinicamente. Percentuais não podem ser improvisados a partir dos limiares. A etapa probabilística requer base adequada e validação externa.
+**Antes de apresentar:** deixe o Streamlit local aberto pelo atalho `APRESENTAR_WINDOWS.bat`. Use modo claro ou escuro, com perfil DEMO-001 já preparado. Não dependa de senha para a apresentação.
 
-**O sistema diagnostica diabetes?** Não. Relaciona valores fictícios a critérios de diretrizes, mas confirmação e avaliação individual cabem ao profissional.
+**Slide 5 / demonstração ao vivo (4:30–8:30):** “Vou abrir a versão local demonstrativa. Escolho *Médico*. No perfil DEMO-001, o sistema mostra a conclusão mais recente, valores de glicemia e HbA1c e um histórico em três datas. Abrindo os detalhes, verifico a justificativa e as fontes. Abaixo, posso registrar um exame fictício e uma nota de acompanhamento que ficará com autor e data. Agora saio e entro como *Paciente*: a mesma pessoa vê apenas a mensagem resumida, sem gráficos ou detalhes técnicos.”
 
-**Qual é a inovação?** Integra entrada, validade dos dados, critérios, fontes, explicações e abstenção em uma interface auditável. Precisamos demonstrar diferencial com testes e comparações, não apenas declarar inovação.
+**Slide 6.** “Quando não há informações suficientes, quando exames discordam ou quando há condições especiais, o sistema deve dizer isso claramente. A ausência de probabilidade validada é intencional, não um número omitido.”
 
-**Há pacientes reais ou parceria?** Não. Nenhuma parceria oficial ou avaliação médica está comprovada.
+**Slide 7.** “O código é dividido em módulos. A interface é feita com Streamlit; o módulo `patients.py` guarda perfis e histórico; `clinical.py` aplica regras; `portal.py` monta as duas áreas. O modelo histórico SHAP está separado e não é usado para calcular a conclusão laboratorial.”
 
-**Como tratar exames em PDF?** Leitura experimental de PDFs textuais fictícios e sem identificação; operador confirma os valores. Nada de upload de prontuários reais nesta fase.
+**Slide 8.** “Registramos verificações automatizadas de regras, persistência, acesso demonstrativo e tratamento de entradas. O navegador real no Windows e a URL pública exigem comprovação à parte. Nossa aplicação permanece acadêmica e não foi validada para uso clínico.”
 
-**O que falta para cumprir o enunciado?** URL pública, testes finais em máquina do grupo, confirmação dos integrantes e prazo, ensaio e revisão documental/humana.
+## Pessoa 3 — slides 9 a 12 (10:30–15:00)
+
+**Slide 9.** “O diferencial incremental é integrar histórico, resumo para paciente, análise aprofundada para médico, notas e explicação com fontes, sem forçar resposta quando faltam evidências. O benefício deve ser verificado em testes com usuários convidados; não alegamos adoção real.”
+
+**Slide 10.** “Nossa evolução em doze meses priorizaria validação de usabilidade, segurança, revisão de documentos, avaliação com profissionais e só depois qualquer possibilidade de integração clínica ou modelo probabilístico.”
+
+**Slide 11.** “O limite é importante: não mostramos diagnóstico automático de tipo 2, não estimamos risco futuro ou probabilidade individual e não trabalhamos com exames de pacientes reais. A demonstração pública, quando publicada, será apenas de consulta a dados sintéticos.”
+
+**Slide 12.** “As referências são públicas, e a documentação descreve o uso de ferramentas de IA. Estamos prontos para explicar o código, os testes e, principalmente, o que o aplicativo não consegue comprovar.”
+
+## Treino e perguntas
+
+- Tempo dos três blocos: **4min30 + 6min + 4min30 = 15min**; cronometrar e ajustar à velocidade real do grupo.
+- Preparar uma captura REAL das telas e da URL publicada para contingência. Um vídeo conceitual não prova funcionamento.
+- **‘Qual probabilidade de diabetes tipo 2?’** Não há estimativa validada no protótipo; a análise atual aplica critérios de exames e não identifica automaticamente o subtipo.
+- **‘Tem RAG funcionando no prontuário?’** Não. Há fontes clínicas vinculadas às regras; a recuperação e geração Ollama antigas são experimentais e separadas.
+- **‘Como garantem privacidade?’** Só usamos pacientes fictícios. Vitrine pública é somente leitura; autenticação segura e regulamentação seriam pré-requisitos para dados reais.
+- **‘Qual o potencial inovador?’** Duas linguagens, histórico longitudinal, justificativa rastreável e indicação explícita de dados insuficientes no mesmo fluxo.

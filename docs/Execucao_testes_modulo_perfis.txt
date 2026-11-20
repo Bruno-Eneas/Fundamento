@@ -1,0 +1,83 @@
+test_app (unittest.loader._FailedTest.test_app) ... ERROR
+test_charts (unittest.loader._FailedTest.test_charts) ... ERROR
+test_contradiction (test_clinical.ClinicalTests.test_contradiction) ... ok
+test_hba1c_interference (test_clinical.ClinicalTests.test_hba1c_interference) ... ok
+test_intermediate_borders (test_clinical.ClinicalTests.test_intermediate_borders) ... ok
+test_invalid_numbers (test_clinical.ClinicalTests.test_invalid_numbers) ... ok
+test_missing_fasting (test_clinical.ClinicalTests.test_missing_fasting) ... ok
+test_normal_does_not_exclude (test_clinical.ClinicalTests.test_normal_does_not_exclude) ... ok
+test_ogtt_nonstandard (test_clinical.ClinicalTests.test_ogtt_nonstandard) ... ok
+test_one_high_needs_confirm (test_clinical.ClinicalTests.test_one_high_needs_confirm) ... ok
+test_pregnancy_and_child_abstain (test_clinical.ClinicalTests.test_pregnancy_and_child_abstain) ... ok
+test_sources_and_json (test_clinical.ClinicalTests.test_sources_and_json) ... ok
+test_symptoms_and_random_200 (test_clinical.ClinicalTests.test_symptoms_and_random_200) ... ok
+test_two_positive (test_clinical.ClinicalTests.test_two_positive) ... ok
+test_two_ttgo_times_do_not_confirm_as_independent (test_clinical.ClinicalTests.test_two_ttgo_times_do_not_confirm_as_independent) ... ok
+test_zero_data_abstains (test_clinical.ClinicalTests.test_zero_data_abstains) ... ok
+test_compatible_valid_labs_do_not_demand_extra_exam (test_clinical.SuggestionsTests.test_compatible_valid_labs_do_not_demand_extra_exam) ... ok
+test_conflicting_labs_suggest_repeating_positive (test_clinical.SuggestionsTests.test_conflicting_labs_suggest_repeating_positive) ... ok
+test_fasting_high_suggests_confirmation (test_clinical.SuggestionsTests.test_fasting_high_suggests_confirmation) ... ok
+test_hba1c_high_suggests_confirmation (test_clinical.SuggestionsTests.test_hba1c_high_suggests_confirmation) ... ok
+test_missing_labs_suggests_entry (test_clinical.SuggestionsTests.test_missing_labs_suggests_entry) ... ok
+test_no_automatic_test_when_below_intermediate (test_clinical.SuggestionsTests.test_no_automatic_test_when_below_intermediate) ... ok
+test_out_of_scope_does_not_suggest_a_test (test_clinical.SuggestionsTests.test_out_of_scope_does_not_suggest_a_test) ... ok
+test_suggestions_export_in_json (test_clinical.SuggestionsTests.test_suggestions_export_in_json) ... ok
+test_false_citation_blocked (test_core.CoreTests.test_false_citation_blocked) ... ok
+test_feedback_survives_connection (test_core.CoreTests.test_feedback_survives_connection) ... ok
+test_generation_limits_reject_unbounded_or_repeated_citations (test_core.CoreTests.test_generation_limits_reject_unbounded_or_repeated_citations) ... ok
+test_missing_and_invalid (test_core.CoreTests.test_missing_and_invalid) ... ok
+test_retrieval_and_abstention (test_core.CoreTests.test_retrieval_and_abstention) ... ok
+test_shap_reconstruction (test_core.CoreTests.test_shap_reconstruction) ... ok
+test_invalid_citation_and_json_rejected (test_generation.GenerationTests.test_invalid_citation_and_json_rejected) ... ok
+test_offline_returns_no_fake_text (test_generation.GenerationTests.test_offline_returns_no_fake_text) ... ok
+test_unconfigured_and_no_evidence (test_generation.GenerationTests.test_unconfigured_and_no_evidence) ... ok
+test_valid_json_and_protocol (test_generation.GenerationTests.test_valid_json_and_protocol) ... ok
+test_ambiguous_duplicate_is_removed (test_lab_pdf.PdfTests.test_ambiguous_duplicate_is_removed) ... ok
+test_bad_file (test_lab_pdf.PdfTests.test_bad_file) ... ok
+test_pdf_no_text (test_lab_pdf.PdfTests.test_pdf_no_text) ... ok
+test_pdf_text_extracts_only_identified_units (test_lab_pdf.PdfTests.test_pdf_text_extracts_only_identified_units) ... ok
+test_notes_append_only_and_scope (test_patients.PatientsDemoTests.test_notes_append_only_and_scope) ... ok
+test_profile_and_record_history (test_patients.PatientsDemoTests.test_profile_and_record_history) ... ok
+test_reject_bad_exams (test_patients.PatientsDemoTests.test_reject_bad_exams) ... ok
+test_seed_idempotent (test_patients.PatientsDemoTests.test_seed_idempotent) ... ok
+test_unknown_patient_and_untrusted_label (test_patients.PatientsDemoTests.test_unknown_patient_and_untrusted_label) ... ok
+test_no_evidence_does_not_call_generator (test_session.SessionTests.test_no_evidence_does_not_call_generator) ... ok
+test_partial_failure_is_atomic (test_session.SessionTests.test_partial_failure_is_atomic) ... ok
+test_success_then_failure_clears_export (test_session.SessionTests.test_success_then_failure_clears_export) ... ok
+test_invalid_input_does_not_create_database (test_storage.StorageTests.test_invalid_input_does_not_create_database) ... ok
+test_nonfinite_payload_not_inserted (test_storage.StorageTests.test_nonfinite_payload_not_inserted) ... ok
+
+======================================================================
+ERROR: test_app (unittest.loader._FailedTest.test_app)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_app
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/fundamento7_build/Fundamento/tests/test_app.py", line 3, in <module>
+    from streamlit.testing.v1 import AppTest
+ModuleNotFoundError: No module named 'streamlit'
+
+
+======================================================================
+ERROR: test_charts (unittest.loader._FailedTest.test_charts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_charts
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/fundamento7_build/Fundamento/tests/test_charts.py", line 2, in <module>
+    import altair as alt
+ModuleNotFoundError: No module named 'altair'
+
+
+----------------------------------------------------------------------
+Ran 48 tests in 0.092s
+
+FAILED (errors=2)

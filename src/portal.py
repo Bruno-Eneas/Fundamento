@@ -157,13 +157,17 @@ def render_patient(account):
     st.caption('Não use esta demonstração para tomar decisões sobre sua saúde.')
 
 
-def render_doctor(account):
+def render_doctor(account, *, readonly=False, walkthrough=False):
     if account.get('role') != 'doctor':
         st.error('Acesso restrito à área médica demonstrativa.'); st.stop()
     st.markdown('<section class="f-hero"><h1>Pacientes</h1>'
                 '<p>Pesquise um perfil, confira o resultado e registre a evolução.</p></section>',
                 unsafe_allow_html=True)
     st.info('Ambiente acadêmico com pacientes fictícios. Não enviar exames reais nem informações identificáveis.')
+    if walkthrough:
+        st.success('Demonstração sugerida: 1. Selecione DEMO-001. 2. Veja o resultado e os exames anteriores. 3. Abra o lançamento de exame e as observações.')
+    if readonly:
+        st.caption('Vitrine pública somente leitura. Não é possível criar pacientes, lançar exames ou registrar notas.')
     if 'new_patient_credentials' in st.session_state:
         new_id, pwd = st.session_state['new_patient_credentials']
         st.success('Novo perfil criado. Guarde estes dados fictícios antes de ocultar:')
@@ -177,7 +181,8 @@ def render_doctor(account):
                 if query in p['id'].casefold() or query in p['label'].casefold()]
     if not patients:
         st.warning('Nenhum paciente encontrado. Tente outro número ou nome fictício.')
-        _new_patient_form()
+        if not readonly:
+            _new_patient_form()
         return
     labels = {p['id']: p['label'] + ' · ' + p['id'] for p in patients}
     pid = st.selectbox('Selecionar paciente', list(labels),
@@ -215,6 +220,9 @@ def render_doctor(account):
                     _summarize_measurements(_result(ex))
     else:
         st.info('Perfil ainda sem exames registrados.')
+    if not readonly:
+        with st.expander('Adicionar exame ao histórico deste paciente'):
+            _exam_form(pid, 'Médico demonstrativo · ' + account['login'])
     st.divider()
     st.markdown('### Notas para acompanhamento')
     st.caption('Observações médicas ficam restritas à área do médico e mantêm autoria e data.')
@@ -222,6 +230,12 @@ def render_doctor(account):
         with st.container(border=True):
             st.write(f'**{note["type"]}** · {note["author"]} · {note["created_at"][:16].replace("T", " ")} UTC')
             st.write(note['body'])
+    if not readonly:
+        _doctor_note_form(pid, account)
+        _new_patient_form()
+
+
+def _doctor_note_form(pid, account):
     with st.form('note_' + pid, clear_on_submit=True):
         note_type = st.selectbox('Categoria', ['Observação','Pendência','Plano de acompanhamento'])
         body = st.text_area('Nova observação para próximos atendimentos', max_chars=1000,
@@ -235,11 +249,6 @@ def render_doctor(account):
         else:
             st.success('Observação registrada no histórico fictício.')
             st.rerun()
-    st.divider()
-    with st.expander('Adicionar exame ao histórico deste paciente'):
-        _exam_form(pid, 'Médico demonstrativo · ' + account['login'])
-    _new_patient_form()
-
 
 def _new_patient_form():
     with st.expander('Cadastrar novo paciente fictício'):

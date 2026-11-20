@@ -11,6 +11,7 @@ from src.clinical import evaluate_labs, SOURCES
 from src.lab_pdf import extract_labs_from_pdf
 from src.patients import initialize_demo
 from src.auth import initialize_auth, authenticate
+from src.showcase import mode as showcase_mode, sample_account
 from src.portal import render_patient, render_doctor
 
 ROOT = Path(__file__).parent
@@ -18,7 +19,7 @@ st.set_page_config(
     page_title="Fundamento | Exames e evidências", page_icon="🌲", layout="wide"
 )
 # Segredos só são lidos no servidor, nunca colocados na interface.
-for name in ["DATABASE_URL", "OLLAMA_URL", "OLLAMA_MODEL"]:
+for name in ["DATABASE_URL", "OLLAMA_URL", "OLLAMA_MODEL", "FUNDAMENTO_PUBLIC_SHOWCASE"]:
     try:
         if name in st.secrets:
             os.environ[name] = str(st.secrets[name])
@@ -42,8 +43,10 @@ def sign_out():
     st.session_state["appearance"] = selected_theme
 
 
+SHOWCASE = showcase_mode()
 initialize_demo()
-initialize_auth()
+if not SHOWCASE:
+    initialize_auth()
 st.session_state.setdefault("appearance", "Claro")
 st.session_state.setdefault("navigation", "Pacientes")
 appearance = st.session_state["appearance"]
@@ -117,6 +120,25 @@ if "account" not in st.session_state:
         "Ambiente acadêmico com pacientes e exames fictícios. "
         "Não envie informações ou documentos reais."
     )
+    if SHOWCASE:
+        st.markdown('### Escolha como conhecer a plataforma')
+        st.caption('Modo de demonstração: acesso simplificado SEM autenticação; todos os dados são fictícios.')
+        demo_doctor, demo_patient = st.columns(2)
+        with demo_doctor:
+            if st.button('Entrar como médico (demo)', key='demo_doctor', type='primary', width='stretch'):
+                st.session_state['account'] = sample_account('doctor')
+                st.session_state['navigation'] = 'Pacientes'
+                st.rerun()
+        with demo_patient:
+            if st.button('Ver área do paciente (demo)', key='demo_patient', width='stretch'):
+                st.session_state['account'] = sample_account('patient')
+                st.session_state['navigation'] = 'Meu perfil'
+                st.rerun()
+        if SHOWCASE == 'publico':
+            st.info('Vitrine pública: consulta somente leitura. Não há cadastro nem envio de exames.')
+        else:
+            st.info('Apresentação local: o médico demonstrativo pode lançar dados FICTÍCIOS e notas. Não há login clínico seguro.')
+        st.stop()
     spacer_left, login_column, spacer_right = st.columns([0.72, 1.1, 0.72], gap="medium")
     with login_column:
         st.markdown(
@@ -195,8 +217,8 @@ with st.sidebar:
                 on_click=choose_page,
                 args=(page,),
             )
-        if account["role"] == "doctor":
-            with st.expander("Demonstrações técnicas"):
+        if account["role"] == "doctor" and SHOWCASE != 'publico':
+            with st.expander("Demonstrações técnicas (opcional)"):
                 st.button("Testar exames avulsos", key="nav_Exames", icon=":material/biotech:",
                           width="stretch", on_click=choose_page, args=("Exames",))
                 st.button("Modelo experimental", key="nav_Análise", icon=":material/bar_chart:",
@@ -665,7 +687,7 @@ if navigation == "Método":
     )
 
 if navigation == "Pacientes" and st.session_state["role"] == "Médico demonstrativo":
-    render_doctor(account)
+    render_doctor(account, readonly=SHOWCASE == 'publico', walkthrough=SHOWCASE == 'local')
 
 if navigation == "Meu perfil" and st.session_state["role"] == "Paciente demonstrativo":
     render_patient(account)

@@ -1,41 +1,28 @@
-FUNDAMENTO 9 — ENTRADA CORRIGIDA E PAINÉIS DO PACIENTE E DO MÉDICO
-Protótipo acadêmico. SOMENTE exemplos fictícios.
+FUNDAMENTO — APRESENTAÇÃO SIMPLES (VERSÃO 10)
 
-1. Extraia o ZIP inteiro. Dentro da pasta Fundamento, execute Iniciar_Windows.bat.
-2. Após o primeiro início, abra o arquivo LOCAL:
-      Fundamento\runtime\ACESSOS_DEMONSTRACAO.txt
-   Ele contém os números de acesso e as senhas ALEATÓRIAS criadas para:
-      MED-DEMO   médico de demonstração
-      MED-002    segundo médico de demonstração
-      DEMO-001   primeiro paciente fictício
-      DEMO-002   segundo paciente fictício
-   Esse arquivo não vem dentro do ZIP, pois as senhas são geradas no seu computador.
-3. Na página de login, digite número de perfil e senha.
-4. ÁREA PACIENTE: veja apenas o resultado resumido, a data do último exame
-   e as datas dos exames anteriores. SEM gráficos, SHAP ou notas médicas.
-5. ÁREA MÉDICA: pesquise um paciente fictício pelo número ou nome; veja o
-   resumo; abra detalhes e fontes se necessário; lance exames; registre notas.
-   Ao criar um paciente, a senha é exibida somente nessa sessão.
-6. Execute Testar_Windows.bat para tentar a suíte completa (inclui Streamlit).
+PARA MOSTRAR AO PROFESSOR, NO SEU COMPUTADOR:
+1. Extraia o ZIP inteiro, não apenas app.py.
+2. Abra a pasta Fundamento e dê dois cliques em APRESENTAR_WINDOWS.bat.
+3. Abra o endereço Local URL que aparece no terminal.
+4. Clique em "Entrar como médico (demo)" — sem senha.
+5. Escolha DEMO-001, veja o resultado no topo, expanda o histórico e as fontes.
+6. Mostre "Adicionar exame ao histórico" ou uma observação médica fictícia.
+7. Clique "Sair da conta" e "Ver área do paciente (demo)".
+   O paciente verá somente o resumo e as datas, SEM gráficos.
 
-Para trocar uma senha de teste, abra o CMD na pasta Fundamento e execute:
-    .venv\Scripts\python.exe -m src.auth reset DEMO-001
-O comando gera uma NOVA senha para o número informado (não recupera a antiga).
+IMPORTANTE:
+- Este atalho é SOMENTE LOCAL (127.0.0.1) e sem autenticação; não usar dados reais.
+- O acesso normal com número de perfil e senha continua em Iniciar_Windows.bat.
+- Em Iniciar_Windows.bat, as senhas são geradas em runtime/ACESSOS_DEMONSTRACAO.txt.
+- Se já houver o app rodando, feche o terminal antigo para evitar outra porta.
+- Para testes, execute Testar_Windows.bat.
+- Python 3.12 é necessário para criar o ambiente virtual na primeira execução.
 
-REGRAS IMPORTANTES:
-- Não publique, envie ou versiona runtime/ACESSOS_DEMONSTRACAO.txt.
-- Não utilize NENHUM dado de paciente real. O login é apenas demonstrativo,
-  não é autenticação clínica de produção nem adequação completa à LGPD.
-- A saída descreve faixas laboratoriais; não confirma nem exclui tipo 2.
-- NÃO existe porcentagem individual de diabetes tipo 2 validada.
-- As fontes e os detalhes ficam disponíveis na área do médico.
-- Chat RAG por paciente, validação clínica e publicação pública continuam pendentes.
-- O relatório e slides do pacote anterior precisam refletir esta nova versão.
-- Não execute train.py para simplesmente testar o aplicativo.
+PARA PUBLICAR UMA VITRINE ACADÊMICA COM DADOS FICTÍCIOS:
+Veja docs/ENTREGA_SIMPLES.md. A vitrine pública é SOMENTE LEITURA;
+não confundir com um serviço clínico ou prontuário seguro.
 
-Consulte docs/Guia_v8.md e docs/Prompt_continuacao_v8.txt.
-
-ALTERAÇÃO DA VERSÃO 9:
-- Corrigida quebra da palavra Fundamento no cabeçalho da entrada.
-- Login centralizado e compacto, com melhor leitura em desktop e celular.
-- Consulte docs/Correcao_login_v9.md.
+A PROFESSORA/O PROFESSOR AVALIARÁ TAMBÉM:
+Relatório 15–25 páginas, plano de disseminação 5–10 páginas,
+pitch de 15 minutos e 20 minutos de perguntas, link público e declaração de IA.
+Conferir detalhes no enunciado oficial, não só neste guia.

@@ -1,88 +1,47 @@
-# Fundamento 8 — duas áreas demonstrativas
+# Fundamento — protótipo acadêmico
 
-A partir do pacote 8, a página inicial solicita **número de perfil e senha**. O médico pode buscar pacientes fictícios, lançar exames e registrar observações; o paciente vê somente um cartão de conclusão e datas, **sem gráficos**. Consulte `COMECAR_AQUI.txt` e `docs/Guia_v8.md`. As seções históricas abaixo descrevem versões anteriores e podem estar desatualizadas em relação ao novo fluxo. **Não usar dados reais; não há previsão probabilística validada de diabetes tipo 2.**
+**Objetivo demonstrável:** organizar exames fictícios por paciente e data, exibir um resultado laboratorial compreensível ao paciente e permitir ao médico consultar a justificativa, as fontes e o histórico, além de registrar notas de acompanhamento.
 
----
+> **Não é sistema clínico.** Não confirma o tipo 2, não calcula probabilidade individual validada, não deve receber dados de pessoas reais. Nenhum vínculo institucional com Unimed, SBD ou ADA está alegado.
 
+## O caminho mais fácil para apresentar
 
-## Novidade demonstrativa: área do paciente e do médico
+1. Instale **Python 3.12** no Windows, se necessário.
+2. Extraia o ZIP inteiro e execute **`APRESENTAR_WINDOWS.bat`**. O iniciador cria um ambiente isolado e instala as bibliotecas na primeira execução.
+3. Abra a **Local URL** que o terminal mostrar.
+4. Clique em **Entrar como médico (demo)**. Selecione **DEMO-001** e confira a conclusão, a evolução e a justificativa; pode registrar um exame *fictício* ou uma observação.
+5. Clique em **Sair da conta** e depois **Ver área do paciente (demo)**: somente um cartão de resultado e as datas, sem gráficos ou SHAP.
 
-Os perfis e exames fictícios agora podem ser organizados por paciente, com histórico e gráficos.
-A seleção de papel na barra lateral é **somente uma simulação**, não um login real.
-- **Paciente demonstrativo:** consulta apenas o perfil fictício `DEMO-001`, vê um resumo e registra exames fictícios.
-- **Médico demonstrativo:** seleciona perfis fictícios, consulta histórico e fontes e registra notas de evolução para o próximo atendimento.
-- Notas são registros do profissional simulado, não texto de IA. Dados persistem localmente em `runtime/demo.sqlite`.
+O modo de apresentação não exige senha **porque não possui autenticação**. Ele é ativado explicitamente e o iniciador restringe o servidor ao próprio computador (`127.0.0.1`). Não o utilize com dados reais.
 
-**Jamais inserir dados reais de saúde nesta versão.** O software não dispõe de controle de acesso, segurança de prontuário, validação clínica ou probabilidade individual de diabetes tipo 2.
-Leia `docs/Modulo_pacientes_e_evolucao.md` para limites, testes e pendências.
+## Uso normal local com senhas demonstrativas
 
-# Fundamento | Avaliação laboratorial explicável
+Execute **`Iniciar_Windows.bat`**. O sistema criará contas e senhas aleatórias em `runtime/ACESSOS_DEMONSTRACAO.txt` na primeira execução. O acesso simula separação por perfis, **não é autorização ou prontuário seguro**. Teste com `Testar_Windows.bat`.
 
-**Estado do produto: protótipo acadêmico demonstrativo, sem validação clínica, sem publicação pública comprovada.** Não integra sistemas da Unimed ou qualquer operadora. Não aceita dados de pacientes identificáveis como condição de uso da demonstração.
+## Vitrine pública acadêmica — somente leitura
 
-## Qual problema resolve
+É possível publicar um demonstrador Streamlit com `FUNDAMENTO_PUBLIC_SHOWCASE=1` nas variáveis de ambiente do servidor. Esse modo libera dois botões de visita com **dados fictícios**, sem formulários de escrita ou autenticação. A hospedagem **não garante persistência do SQLite local**; a vitrine reinicia os perfis predefinidos quando necessário. Esse recurso não é equivalente a publicar um prontuário com controle de acesso. Veja `docs/ENTREGA_SIMPLES.md`.
 
-Apresenta resultados de exames de diabetes de forma explicável: qual valor foi usado, com qual faixa laboratorial foi comparado, por que o conjunto é inconclusivo ou requer confirmação e quais diretrizes fundamentam a interpretação. **Não emite diagnóstico, não exclui diabetes e não produz probabilidade clínica individual sem um modelo validado.**
+## Estrutura
 
-## Executar no Windows
+- `app.py`: navegação, temas e formulários.
+- `src/patients.py`: perfis fictícios, exames e notas em SQLite local.
+- `src/portal.py`: tela simples do paciente e área detalhada do médico.
+- `src/clinical.py`: critérios laboratoriais explícitos, confirmações e abstenção.
+- `src/auth.py`: senhas aleatórias para o fluxo local tradicional.
+- `src/showcase.py`: modos de apresentação sem login (intencionalmente sem autenticação).
+- `src/lab_pdf.py`: extração experimental somente de PDF textual fictício, sujeita à conferência.
+- `src/core.py`, `src/charts.py`, `src/generation.py`, `src/session.py`: modelo e geração **experimentais**, independentes da análise de exames; Ollama opcional.
+- `assets/`: modelo demonstrativo, regras, referências e temas verdes com pinheiros.
+- `tests/`: testes automatizados.
+- `docs/Entrega/`: arquivos editáveis e PDFs do relatório e plano, apresentações e roteiro; devem permanecer coerentes com a versão efetivamente publicada.
 
-1. Extraia a pasta completa do ZIP em local de fácil acesso.
-2. Instale Python 3.12. Na pasta Fundamento execute `Iniciar_Windows.bat` (cria `.venv`, instala dependências e abre Streamlit).
-3. Abra a **Local URL** exibida no terminal. Não cole comandos dentro de `app.py`.
-4. Na página **Exames**, clique nos exemplos A, B e C ou digite valores fictícios; clique em **Analisar exames**. Confira resultado, faixas e fontes.
-5. Na aba **Análise**, explore a árvore de decisão histórica com dados fictícios e, opcionalmente, seus textos gerados por Ollama. Este escore **não** é a probabilidade da avaliação laboratorial.
-6. Execute `Testar_Windows.bat` para a suíte completa. Confirme o resultado na sua máquina.
+## O que deliberadamente não prometemos
 
-Opcional: com Ollama ativo, executar `ollama pull qwen2.5:3b` e abrir `Iniciar_Com_Ollama.bat` para geração **somente no módulo histórico**. O módulo Exames não requer Ollama.
+- Diagnóstico automático definitivo; identificação do tipo 2 por exames de rotina; previsão do aparecimento futuro da doença; porcentagem clínica individual.
+- Chat médico com RAG integrado ao histórico: **não implementado**. As fontes clínicas são cadastradas e mostradas diretamente; o gerador antigo é separado e opcional.
+- Importação segura de exames de pacientes reais; compatibilidade com prontuários; assinatura ou acesso médico institucional; conformidade completa com LGPD.
 
-## O que o módulo Exames recebe
+**Fontes de critérios:** [Sociedade Brasileira de Diabetes — Diagnóstico 2026](https://diretriz.diabetes.org.br/diagnostico-de-diabetes-mellitus/), [ADA — Standards 2026](https://doi.org/10.2337/dc26-s002) e [NIDDK/NIH](https://www.niddk.nih.gov/health-information/diabetes/overview/tests-diagnosis). A revisão clínica independente permanece necessária.
 
-- Glicemia plasmática em jejum (mg/dL), HbA1c (%) e, opcionalmente, TTGO 75 g de 1h/2h (mg/dL) ou glicemia plasmática casual (mg/dL).
-- Informações declaradas sobre condições de coleta, gestação, faixa adulta, diagnóstico anterior, sintomas e possível interferência na HbA1c.
-- PDF textual fictício anonimizado (até 5 MB, 8 páginas) com leitura **experimental** por rótulos. O operador deve conferir manualmente os números. PDFs escaneados ou ambíguos exigem digitação manual. **Não enviar documentos identificáveis.**
-
-A avaliação é deliberadamente conservadora: resultados isolados na faixa de diabetes exigem confirmação em regra geral; resultados discordantes geram aviso; dados ausentes ou fora do escopo geram abstenção. Em qualquer caso a tela explica as fontes e a ausência de probabilidade individual validada.
-
-## Fontes prioritárias
-
-1. [SBD — Diagnóstico de diabetes mellitus, edição 2026](https://diretriz.diabetes.org.br/diagnostico-de-diabetes-mellitus/)
-2. [ADA — Standards of Care in Diabetes, seção 2, 2026](https://doi.org/10.2337/dc26-s002)
-3. [NIDDK/NIH — Diabetes Tests & Diagnosis](https://www.niddk.nih.gov/health-information/diabetes/overview/tests-diagnosis)
-
-As faixas estão em `src/clinical.py`; links não representam aprovação da plataforma por essas organizações.
-
-## Arquitetura
-
-| Arquivo | Função |
-|---|---|
-| `app.py` | Interface, navegação, formulários, avisos e visual claro/escuro |
-| `src/clinical.py` | Regras de faixa e abstenção, retorno estruturado e fontes |
-| `src/lab_pdf.py` | Leitura local conservadora de PDFs textuais demonstrativos |
-| `src/core.py` / `src/charts.py` | Modelo histórico e gráfico SHAP, **separados** |
-| `src/generation.py` / `src/session.py` | Gerador Ollama opcional e controle transacional |
-| `src/storage.py` | Banco de feedback do módulo histórico, SQLite ou PostgreSQL |
-| `assets/theme.css`, `hero_*.svg` | Tema visual e paisagens próprias em verde |
-| `tests/` | Suíte de regressões clínicas, leitura PDF e modelo histórico |
-| `docs/Entrega/` | Relatório técnico, plano e apresentação **para conferência** |
-
-## Requisitos do professor e entregas
-
-O enunciado oficial em `docs/Enunciado.pdf` exige: aplicativo funcional publicamente acessível; relatório técnico **15–25 páginas** com 22 tópicos; plano de disseminação **5–10 páginas**; apresentação de **15 minutos** e arguição de **20 minutos**; declaração de uso de IA. A pasta `docs/Entrega/` traz versões acadêmicas preparadas para conferência. **Data/hora final, nomes dos colegas, URL pública, testes Windows e revisão médica ainda faltam.**
-
-## Limites e privacidade
-
-Esta aplicação não possui autenticação, adequação completa à LGPD, sistema de prontuário ou modelo de predição clínica calibrado. Evitar uso com exames de pessoas reais mesmo quando hospedada. As entradas não são deliberadamente salvas pelo módulo Exames, mas toda hospedagem tem riscos de infraestrutura/logs; não interpretar essa restrição de código como certificação de privacidade. Avaliar governança, segurança e regulação antes de qualquer piloto com pacientes.
-
-## Treinamento e artefatos históricos
-
-**Não execute `train.py` para testar o site**: baixa dados e pode sobrescrever o modelo antigo. O modelo `.joblib` deve ser carregado apenas deste pacote confiável. A árvore histórica usa idade codificada, IMC, atividade física e hipertensão; não recebe glicemia nem HbA1c. Suas métricas e dados de treinamento não validam a interpretação laboratorial.
-
-## Git
-
-A pasta `.git` e o `Fundamento.bundle` preservam o histórico real disponível. Não alterar datas/autoria para simular trabalho de integrantes. Consulte `docs/Git.md`.
-
-## Atualização do protótipo — pacote 6 (20/11/2026)
-
-Na seção Exames laboratoriais, a página apresenta um cartão de **resultado resumido**, uma lista compacta dos valores que contribuíram para a interpretação, sugestões **condicionais** de exames/confirmações e fontes clicáveis. Os detalhes completos ficam em uma área expansível. A nova saída em `src/clinical.py` traz `suggested_exams` e `follow_up_message`. Há oito regressões novas para esses casos.
-
-**Ainda não implementados:** cadastro de pacientes fictícios persistentes; histórico de exames por paciente; chat RAG sobre esse histórico; probabilidade clínica individual validada; publicação pública. Use `docs/Prompt_terminar_projeto.txt` com o ZIP para continuar. Prévia de vídeo eventualmente anexada é conceitual, não demonstração funcional.
+**Entrega:** ler `docs/ENTREGA_SIMPLES.md` e o `docs/Enunciado.pdf`. A URL pública e os testes no Windows não podem ser considerados comprovados antes de executados pelo grupo.

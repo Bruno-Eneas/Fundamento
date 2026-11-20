@@ -1,0 +1,27 @@
+9d25db7 2026-11-20 fix: ajustar login e impedir quebra do titulo
+01ec4b3 2026-11-20 feat: separar areas paciente e medico com login demonstrativo
+21a0020 2026-11-20 feat: demonstrar perfis, historico e evolucoes medicas
+40f77a2 2026-11-20 feat: resumir avaliação laboratorial e orientar confirmação
+d7ba130 2026-11-20 feat: incluir avaliacao laboratorial rastreavel e entregas academicas
+001cd99 2026-11-20 docs: confrontar projeto com enunciado e reforcar mensagens do modelo
+16219e2 2026-11-20 feat: mostrar classificação experimental e separar avaliação global
+a78e2f4 2026-11-20 feat: explicar resultados por perfil e simplificar o cabeçalho escuro
+2b64cc0 2026-11-20 fix: dar contraste aos perfis e exibir valores junto às barras
+12bfa20 2026-11-20 fix: reiniciar avaliação por explicação e expor precisão positiva
+268bb84 2026-11-20 docs: entregar relatorio tecnico atualizado e criterios de aceite
+fab3f27 2026-11-20 docs: preparar prompt autocontido para revisao fora do Work Mode
+dc78719 2026-11-20 docs: atualizar plano do grupo e registro de uso de IA
+ec3badd 2026-11-20 docs: explicar historico verdadeiro e restauracao por bundle
+8b7b13f 2026-11-20 docs: consolidar instalacao arquitetura e limites do prototipo
+f56b88c 2026-11-20 test: registrar suite completa e limites da verificacao
+a567f37 2026-11-20 style: padronizar Python e remover imports sem uso
+628996a 2026-11-20 ci: preparar testes automaticos e excluir arquivos locais
+4e80b28 2026-11-20 feat: adicionar iniciadores de testes Windows e execucao Linux
+21a7eb3 2026-11-20 refactor: centralizar especificacao do grafico com validacao de esquema
+da18b92 2026-11-20 test: validar protocolo Ollama e falhas com respostas controladas
+ff2057d 2026-11-20 fix: validar comentarios e impedir payload numerico invalido
+7850490 2026-11-20 refactor: separar estilos visuais do fluxo da aplicacao
+d1d3aff 2026-11-20 fix: exigir escolha explicita na avaliacao academica
+bca6083 2026-11-20 test: cobrir exportacao apos erro e geracao parcial
+3636b4e 2026-11-20 fix: limpar rascunho exportado antes de cada geracao
+dfceff2 2026-11-20 chore: importar prototipo existente como base da revisao
