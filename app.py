@@ -160,8 +160,13 @@ with st.sidebar:
             )
     navigation = st.session_state["navigation"]
     st.divider()
-    case = st.selectbox(
-        "Perfil demonstrativo", list(CASES), index=1 if len(CASES) > 1 else 0
+    case = st.radio(
+        "Perfil demonstrativo",
+        list(CASES),
+        index=1,
+        format_func=lambda name: name.split(" —")[0],
+        horizontal=True,
+        key="profile_choice",
     )
     v = CASES[case]
     st.markdown(
@@ -263,7 +268,11 @@ if navigation == "Análise":
                     ],
                 }
             )
-            st.vega_lite_chart(chart, contribution_spec(colors), width="stretch")
+            plot = chart.copy()
+            plot["rank"] = range(len(plot))
+            formatted = plot["contribution_pp"].map(lambda value: f"{value:+.2f}".replace(".", ","))
+            plot["factor"] = plot["factor"] + "   " + formatted + " p.p."
+            st.vega_lite_chart(plot, contribution_spec(colors), width="stretch", theme=None)
             with st.expander("Conferir valores das contribuições"):
                 st.dataframe(
                     chart.rename(
@@ -281,7 +290,7 @@ if navigation == "Análise":
         st.subheader("Explicação com fontes")
         if not os.environ.get("OLLAMA_MODEL"):
             st.write(
-                "Ainda não há um modelo de linguagem conectado. A versão atual apresenta busca e sínteses documentais; não simula RAG completo."
+                "As fontes estão disponíveis acima. Para gerar um rascunho com IA, abra o aplicativo pelo iniciador com Ollama."
             )
         elif st.button(
             "Gerar rascunho com fontes", type="primary", icon=":material/auto_awesome:"

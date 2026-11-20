@@ -27,16 +27,16 @@ class AppTests(unittest.TestCase):
                 self.assertEqual(a.session_state["result"]["score"], score)
                 next(b for b in a.button if b.label == "Salvar avaliação").click().run()
                 self.assertFalse(any("registrada" in x.value for x in a.success))
-                a.radio[0].set_value("Concordo")
+                a.main.radio[0].set_value("Concordo")
                 a.text_area[0].set_value("Comentário sobre B")
                 next(b for b in a.button if b.label == "Salvar avaliação").click().run()
                 self.assertTrue(any("registrada" in x.value for x in a.success))
-                a.selectbox[0].select("Caso A — fictício").run()
+                a.radio(key="profile_choice").set_value("Caso A — fictício").run()
                 self.assertAlmostEqual(
                     a.session_state["result"]["score"],
                     explain(CASES["Caso A — fictício"])["score"],
                 )
-                self.assertIsNone(a.radio[0].value)
+                self.assertIsNone(a.main.radio[0].value)
                 self.assertEqual(a.text_area[0].value, "")
                 self.assertNotIn("generated", a.session_state)
                 a.button(key="theme_light").click().run()

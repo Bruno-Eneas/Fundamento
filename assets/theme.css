@@ -82,3 +82,43 @@ textarea,input {background:var(--surface)!important;color:var(--text)!important;
 [data-testid="stSelectbox"] [data-baseweb="select"] > div > div {background:transparent!important;}
 [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {background:#ffffff0d!important;color:#f0faf5!important;}
 @media(max-width:700px) {.block-container {padding-left:1rem;padding-right:1rem;}.f-hero:after {opacity:.2;}.f-hero {min-height:125px;}}
+
+/* Mantém a largura de leitura e libera espaço para a barra superior fixa. */
+[data-testid="stMainBlockContainer"] {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-top: 5rem;
+}
+[data-testid="stSidebar"] .st-key-profile_choice [role="radiogroup"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.st-key-profile_choice [role="radiogroup"] label {
+  margin: 0;
+  padding: .45rem .55rem;
+  border: 1px solid #668780;
+  border-radius: .55rem;
+  background: #173f40;
+}
+.st-key-profile_choice [role="radiogroup"] label p {
+  color: #f1faf6 !important;
+  font-size: .85rem;
+}
+.st-key-profile_choice label:has(input:checked) {
+  background: #006847;
+  border-color: #8de6be;
+}
+.st-key-profile_choice label:focus-within { outline: 2px solid #c1f6dc; }
+.stApp [data-testid="stCaptionContainer"],
+.stApp [data-testid="stCaptionContainer"] p,
+.stApp [data-testid="stCaptionContainer"] small,
+.stApp [data-testid="stCaptionContainer"] p small {
+  color: var(--muted) !important;
+  opacity: 1;
+  font-size: .85rem !important;
+}
+[data-testid="stVegaLiteChart"] {
+  border: 0;
+  padding: 0;
+}

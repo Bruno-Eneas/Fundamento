@@ -3,14 +3,14 @@
 
 def contribution_spec(colors):
     return {
-        "height": 240,
+        "height": 165,
         "background": colors["surface"],
-        "mark": {"type": "bar", "cornerRadiusEnd": 4, "height": 24},
+        "mark": {"type": "bar", "cornerRadiusEnd": 4, "height": 17},
         "encoding": {
             "y": {
                 "field": "factor",
                 "type": "nominal",
-                "sort": None,
+                "sort": {"field": "rank", "op": "min", "order": "ascending"},
                 "axis": {"title": None, "labelLimit": 240, "labelFontSize": 12},
             },
             "x": {
