@@ -64,3 +64,12 @@ O Streamlit Community Cloud hospeda aplicações Python. Na configuração do ap
 **"Onde está a IA?"** Há um modelo de decisão e explicação SHAP em uma seção técnica opcional, e um gerador Ollama experimental separado. O resultado principal de exames é determinado por regras e fontes explícitas. Não há chat com RAG vinculado ao paciente. A contribuição científica aqui é também a escolha consciente de explicar e saber não responder.
 
 **"Qual é a inovação?"** Proposta incremental: histórico + duas camadas de linguagem + justificativa rastreável + abstenção + notas de acompanhamento, em um fluxo acessível. Originalidade, eficácia e adoção ainda precisam de avaliação externa.
+
+### Publicação no Streamlit Community Cloud (passo a passo)
+1. O integrante responsável deve colocar o código em um repositório do grupo no GitHub. Não subir `runtime/`, `.venv/`, arquivos de senhas ou documentos pessoais.
+2. Entrar em [Streamlit Community Cloud](https://share.streamlit.io), criar aplicativo a partir do repositório e escolher `app.py` como arquivo principal.
+3. Selecionar Python 3.12, quando a opção estiver disponível. Nas configurações de **Secrets** adicionar, como valor de exemplo, a linha `FUNDAMENTO_PUBLIC_SHOWCASE = "1"` (sem credenciais reais).
+4. Implantar e verificar a URL numa janela anônima. Testar os dois botões de acesso, a área médica somente leitura e a área do paciente. Confirmar que não aparecem formulários para salvar dados.
+5. Colar a URL **realmente testada** no relatório, plano e slides. Se o serviço não conseguir instalar as dependências, registrar o erro e ajustar sem afirmar que foi publicado.
+
+O site público nesta configuração **não tem login seguro de pacientes**: é uma vitrine de dados sintéticos, deliberadamente de consulta. Não usar para assistência à saúde.
