@@ -14,11 +14,12 @@ def connect():
 def save_feedback(result,rating,comment):
     if rating not in ['Concordo','Discordo','Não consigo avaliar']:
         raise ValueError('Avaliação inválida.')
+    if not isinstance(comment, str): raise ValueError('Comentário inválido.')
     if len(comment)>500: raise ValueError('Comentário excede 500 caracteres.')
     conn,p=connect();rid=str(uuid.uuid4())
     try:
         with conn:
             conn.execute('CREATE TABLE IF NOT EXISTS feedback (id TEXT PRIMARY KEY, created_at TEXT NOT NULL, payload TEXT NOT NULL, rating TEXT NOT NULL, comment TEXT NOT NULL)')
-            conn.execute(f'INSERT INTO feedback VALUES ({p},{p},{p},{p},{p})',(rid,datetime.now(timezone.utc).isoformat(),json.dumps(result,ensure_ascii=False),rating,comment))
+            conn.execute(f'INSERT INTO feedback VALUES ({p},{p},{p},{p},{p})',(rid,datetime.now(timezone.utc).isoformat(),json.dumps(result,ensure_ascii=False,allow_nan=False),rating,comment))
     finally:conn.close()
     return rid
