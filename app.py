@@ -6,6 +6,7 @@ from src.core import CASES,AGES,explain,retrieve,evidence,rules
 from src.storage import save_feedback
 from src.generation import generate
 from src.session import generate_result
+from src.charts import contribution_spec
 ROOT=Path(__file__).parent
 st.set_page_config(page_title='Fundamento | Demonstração',page_icon='🔎',layout='wide')
 # Segredos só são lidos no servidor, nunca colocados na interface.
@@ -111,16 +112,7 @@ if navigation == 'Análise':
         st.caption('Fontes sobre diabetes tipo 2; a base do modelo não distingue tipos. Contexto documental geral, sem validação clínica. Revisão especializada pendente.')
         with st.expander('Ver gráfico de contribuições SHAP',expanded=False):
             chart=pd.DataFrame({'factor':[f['label'] for f in r['factors']],'contribution_pp':[float(f['contribution'])*100 for f in r['factors']]})
-            st.vega_lite_chart(chart, {
-                'height':240, 'background':colors['surface'],
-                'mark':{'type':'bar','cornerRadiusEnd':4,'height':24},
-                'encoding':{
-                    'y':{'field':'factor','type':'nominal','sort':None,'axis':{'title':None,'labelLimit':240,'labelFontSize':12}},
-                    'x':{'field':'contribution_pp','type':'quantitative','scale':{'zero':True},'axis':{'title':'Contribuição (pontos percentuais)','tickCount':5,'format':'.1f'}},
-                    'color':{'condition':{'test':'datum.contribution_pp >= 0','value':colors['accent']},'value':'#759bc9'},
-                    'tooltip':[{'field':'factor','type':'nominal','title':'Fator'},{'field':'contribution_pp','type':'quantitative','format':'+.2f','title':'Contribuição (p.p.)'}]},
-                'config':{'view':{'stroke':None},'axis':{'domain':False,'gridColor':colors['line'],'labelColor':colors['muted'],'titleColor':colors['muted'],'titlePadding':16}}
-            },width='stretch',theme=None)
+            st.vega_lite_chart(chart, contribution_spec(colors), width='stretch')
             with st.expander('Conferir valores das contribuições'):
                 st.dataframe(chart.rename(columns={'factor':'Fator','contribution_pp':'Contribuição (p.p.)'}),hide_index=True,width='stretch')
             st.caption('Valores positivos aumentam a saída do modelo em relação à referência; negativos diminuem. A implementação verifica numericamente essa soma.')
