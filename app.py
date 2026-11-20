@@ -9,6 +9,8 @@ from src.session import generate_result
 from src.charts import contribution_spec
 from src.clinical import evaluate_labs, SOURCES
 from src.lab_pdf import extract_labs_from_pdf
+from src.patients import initialize_demo
+from src.portal import render_patient, render_doctor
 
 ROOT = Path(__file__).parent
 st.set_page_config(
@@ -31,7 +33,16 @@ def choose_page(value):
     st.session_state["navigation"] = value
 
 
+def choose_role():
+    if st.session_state["role"] == "Paciente demonstrativo":
+        st.session_state["navigation"] = "Meu perfil"
+    else:
+        st.session_state["navigation"] = "Pacientes"
+
+
+initialize_demo()
 st.session_state.setdefault("appearance", "Claro")
+st.session_state.setdefault("role", "Médico demonstrativo")
 st.session_state.setdefault("navigation", "Exames")
 appearance = st.session_state["appearance"]
 dark = appearance == "Escuro"
@@ -96,13 +107,22 @@ with st.sidebar:
         '<div class="f-brand"><span class="f-symbol" aria-hidden="true"></span> Fundamento</div>',
         unsafe_allow_html=True,
     )
+    st.selectbox(
+        "Visualizar como (acesso fictício, SEM login)",
+        ["Médico demonstrativo", "Paciente demonstrativo"],
+        key="role", on_change=choose_role,
+    )
     with st.container(key="side_navigation"):
-        for page, label, icon in [
-            ("Exames", "Exames laboratoriais", ":material/biotech:"),
-            ("Análise", "Modelo experimental", ":material/bar_chart:"),
-            ("Evidências", "Fontes e evidências", ":material/menu_book:"),
-            ("Método", "Método e limites", ":material/science:"),
-        ]:
+        pages = (
+            [("Meu perfil", "Meu perfil e exames", ":material/person:")]
+            if st.session_state["role"] == "Paciente demonstrativo" else
+            [("Pacientes", "Pacientes e histórico", ":material/groups:"),
+             ("Exames", "Laboratório demonstrativo", ":material/biotech:"),
+             ("Análise", "Modelo experimental", ":material/bar_chart:"),
+             ("Evidências", "Fontes e evidências", ":material/menu_book:"),
+             ("Método", "Método e limites", ":material/science:")]
+        )
+        for page, label, icon in pages:
             st.button(
                 label,
                 key="nav_" + page,
@@ -581,3 +601,10 @@ st.divider()
 st.caption(
     "Fundamento · Projeto acadêmico independente · Sem validação clínica ou vínculo institucional oficial declarado."
 )
+
+
+if navigation == "Pacientes" and st.session_state["role"] == "Médico demonstrativo":
+    render_doctor()
+
+if navigation == "Meu perfil" and st.session_state["role"] == "Paciente demonstrativo":
+    render_patient()

@@ -1,3 +1,15 @@
+
+## Novidade demonstrativa: área do paciente e do médico
+
+Os perfis e exames fictícios agora podem ser organizados por paciente, com histórico e gráficos.
+A seleção de papel na barra lateral é **somente uma simulação**, não um login real.
+- **Paciente demonstrativo:** consulta apenas o perfil fictício `DEMO-001`, vê um resumo e registra exames fictícios.
+- **Médico demonstrativo:** seleciona perfis fictícios, consulta histórico e fontes e registra notas de evolução para o próximo atendimento.
+- Notas são registros do profissional simulado, não texto de IA. Dados persistem localmente em `runtime/demo.sqlite`.
+
+**Jamais inserir dados reais de saúde nesta versão.** O software não dispõe de controle de acesso, segurança de prontuário, validação clínica ou probabilidade individual de diabetes tipo 2.
+Leia `docs/Modulo_pacientes_e_evolucao.md` para limites, testes e pendências.
+
 # Fundamento | Avaliação laboratorial explicável
 
 **Estado do produto: protótipo acadêmico demonstrativo, sem validação clínica, sem publicação pública comprovada.** Não integra sistemas da Unimed ou qualquer operadora. Não aceita dados de pacientes identificáveis como condição de uso da demonstração.

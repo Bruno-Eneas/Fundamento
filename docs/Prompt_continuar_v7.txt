@@ -1,0 +1,32 @@
+Você vai continuar o projeto acadêmico Fundamento a partir do ZIP Fundamento_7.
+NÃO recomece o aplicativo do zero e NÃO use versões antigas como fonte principal.
+Leia README.md, docs/Modulo_pacientes_e_evolucao.md e docs/Enunciado.pdf antes de alterar.
+
+OBJETIVO
+O Fundamento apoia médicos e pacientes fictícios na organização histórica de exames laboratoriais relacionados a diabetes. Área do paciente = resultado resumido e próprio histórico. Área do médico = perfis autorizados, interpretação detalhada, fontes, histórico e notas clínicas/evoluções. Não declarar diagnóstico definitivo de tipo 2 ou porcentagem individual sem modelo validado. O projeto é apenas educacional.
+
+ESTADO REAL DO PROTÓTIPO
+- Interface Streamlit com temas Unimed-inspirados verde/pinheiros e paisagem, sem vínculo oficial com marca.
+- Regras laboratoriais em src/clinical.py. Incluem verificação de dados ausentes/discordantes, confecção de resumo e fontes.
+- Área de paciente e médico APENAS SIMULADAS em app.py e src/portal.py.
+- SQLite local para perfis, exames e notas fictícios em src/patients.py, runtime/demo.sqlite.
+- Área de paciente usa DEMO-001 fixo; área de médico permite navegar perfis de demonstração.
+- Registros de evolução são append-only pela interface, com autor DEMONSTRATIVO. Não há login real.
+- Modelo de árvore/SHAP histórico na aba Análise é experimental e separado dos exames.
+- Nenhum acesso autorizado a prontuários reais nem probabilidade calibrada de diabetes tipo 2.
+
+PRIORIDADES PARA IMPLEMENTAÇÃO REAL
+1. Revisar a experiência em Streamlit real, desktop e celular, temas claro/escuro. Corrigir problemas de navegação e duplicação de widgets, com capturas reais.
+2. Implementar autenticação e autorização por papel e por paciente, no backend, ANTES de qualquer dado real. Médico NÃO pode ver qualquer prontuário indiscriminadamente: apenas aqueles com acesso autorizado. Garantir isolamento testado, auditoria de acessos e proteção/retencao de dados.
+3. Definir requisitos da evolução médica com profissional de saúde: notas assinadas, adendos, marcações de pendências, autoria, data/hora, histórico sem exclusão silenciosa, indicação clara de conteúdo humano versus IA.
+4. Vincular chat/RAG às diretrizes e aos dados do paciente permitido, com citações verificáveis, checagens de suporte e abstenção. Evitar vazar notas internas para o paciente.
+5. Ampliar dados e validação para probabilidades clínicas específicas, se esse for objetivo de pesquisa; não converter saídas experimentais em “risco individual”.
+6. Atualizar relatórios e apresentação conforme enunciado, testar deploy em outra máquina e registrar apenas evidências reais.
+
+VERIFICAÇÃO
+- Rodar Testar_Windows.bat com as dependências instaladas.
+- Testar alternância de papeis, importação fictícia de PDF, múltiplos perfis, gráficos, registro de notas, recarga do navegador e isolamento dos dados.
+- Observar que a versão anterior teve 46 verificações PASSANDO no ambiente local, e 2 NÃO INICIARAM por dependências streamlit/altair ausentes: isso não é aprovação visual.
+- Conferir saídas com diretrizes SBD/ADA atualizadas, sem inventar interpretações médicas.
+
+NÃO INVENTAR: funcionamento de login real, conformidade LGPD, validação clínica, resultados probabilísticos, testes Windows, aprovações ou commits. Documentar explicitamente qualquer pendência.
