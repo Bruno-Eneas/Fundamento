@@ -3,3 +3,9 @@ __pycache__/
 runtime/
 .streamlit/secrets.toml
 .env
+
+.pytest_cache/
+.ruff_cache/
+*.pyc
+.env.*
+!.env.example
