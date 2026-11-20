@@ -93,35 +93,15 @@ with st.container(key="topbar"):
                 args=("Escuro",),
                 width="stretch",
             )
-# Ilustração vetorial incorporada: não depende de downloads nem de arquivos extras.
-import base64
-
-if dark:
-    # O cabeçalho escuro reutiliza o pinheiro sólido da marca lateral.
-    forest = ""
-else:
-    forest = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 190"><path fill="#e4f3eb" d="M30 190L245 30 400 190Z"/><path fill="#cae9d9" d="M180 190L335 65 400 125V190Z"/>'
-    for x, y, scale in [(230, 105, 0.65), (320, 50, 1.1), (377, 116, 0.55)]:
-        forest += f'<g transform="translate({x} {y}) scale({scale})"><path fill="#72bd99" d="M0 0L-22 35H-12L-34 65H-18L-45 100H45L18 65H34L12 35H22Z"/></g>'
-    forest += "</svg>"
-forest_uri = "data:image/svg+xml;base64," + base64.b64encode(forest.encode()).decode()
 css = (ROOT / "assets/theme.css").read_text(encoding="utf-8")
 css = (
     css.replace(
         "__VARS__", ";".join("--" + k + ":" + v for k, v in colors.items()) + ";"
     )
-    .replace("__FOREST__", forest_uri)
     .replace("__SCHEME__", "dark" if dark else "light")
 )
 st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
-st.markdown(
-    f'<section class="f-hero f-hero-{appearance.lower()}"><h1>Como o modelo interpreta este perfil?</h1><p>Escolha um dos três casos fictícios para explorar o resultado e conferir suas fontes.</p></section>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="f-warning"><strong>Uso educacional.</strong> Estes casos ilustram um modelo treinado com dados históricos. O aplicativo não determina se uma pessoa tem diabetes nem prevê se ela vai desenvolver a doença.</div>',
-    unsafe_allow_html=True,
-)
+metrics = json.loads((ROOT / "assets/metrics.json").read_text(encoding="utf-8"))
 with st.sidebar:
     st.markdown(
         '<div class="f-brand"><span class="f-symbol" aria-hidden="true"></span> Fundamento</div>',
@@ -210,7 +190,21 @@ if navigation == "Análise":
         )
     else:
         r = st.session_state["result"]
-        st.subheader(f"{case.split(' —')[0]} · Leitura do resultado")
+        st.title(f"{case.split(' —')[0]} · Resultado do modelo")
+        threshold = metrics["threshold"]
+        positive = r["score"] >= threshold
+        label = "Classe 1" if positive else "Classe 0"
+        comparison = "atingiu ou superou" if positive else "ficou abaixo de"
+        cutoff = f"{threshold:.0%}"
+        score_label = f"{r['score']:.1%}".replace(".", ",")
+        st.markdown(
+            f'<section class="prediction"><span>Classificação experimental do perfil fictício</span>'
+            f'<h2>{label}</h2><p>O escore de <strong>{score_label}</strong> {comparison} o corte '
+            f'de {cutoff} usado na avaliação do modelo.</p></section>',
+            unsafe_allow_html=True,
+        )
+        st.caption("O modelo tenta reproduzir o rótulo histórico de diabetes da base. "
+                   "Esta classificação não confirma nem exclui doença e não estima risco futuro.")
         activity = "com" if v["PhysActivity"] else "sem"
         pressure = "com" if v["HighBP"] else "sem"
         st.write(
@@ -357,7 +351,7 @@ if navigation == "Análise":
             "application/json",
         )
 if navigation == "Evidências":
-    st.subheader("Base pequena, identificável e auditável")
+    st.title("Fontes documentais")
     st.write(
         "Três trechos curtos de uma fonte institucional. A ampliação da base e a revisão clínica estão pendentes."
     )
@@ -372,22 +366,11 @@ if navigation == "Evidências":
     )
     st.dataframe(pd.DataFrame(rules()), hide_index=True, width="stretch")
 if navigation == "Método":
-    m = json.loads((ROOT / "assets/metrics.json").read_text(encoding="utf-8"))
-    st.subheader("Treinamento e avaliação interna")
-    st.write(
-        "Árvore de decisão com profundidade máxima 4, quatro entradas e mínimo de 500 registros por folha. Divisão por grupos mantém perfis idênticos em apenas um lado do treino/teste."
-    )
-    a, b, c = st.columns(3)
-    a.metric("Registros", f"{m['rows']:,}")
-    b.metric("ROC AUC", f"{m['roc_auc']:.3f}")
-    c.metric("Precisão média (AP)", f"{m['average_precision']:.3f}")
-    st.caption(
-        "ROC AUC mede ordenação; AP resume precisão e sensibilidade ao variar o limiar. Nenhuma dessas métricas prova calibração ou aptidão clínica."
-    )
-    st.write("**Rótulo:** " + m["target"])
-    st.write(
-        f"**Matriz de confusão, limiar {m['threshold']:.2f}:** linhas = rótulo observado; colunas = classe prevista."
-    )
+    m = metrics
+    st.title("Como o modelo foi avaliado")
+    st.write("Esta página resume o desempenho em registros históricos. Para ver a previsão do perfil selecionado, abra Análise.")
+    st.button("Ver resultado do caso", on_click=choose_page, args=("Análise",))
+    st.subheader("Acertos entre as previsões positivas")
     report = m["classification_report"]
     positive, sensitivity, specificity = st.columns(3)
     positive.metric("Precisão positiva", f"{report['1']['precision']:.2%}".replace(".", ","))
@@ -399,14 +382,29 @@ if navigation == "Método":
         f"Das {true_positives + false_positives} previsões positivas, "
         f"{true_positives} corresponderam à classe 1 observada."
     )
-    st.caption(m["threshold_method"])
-    st.dataframe(
-        pd.DataFrame(
-            m["confusion_matrix"],
-            index=["Observado 0", "Observado 1"],
-            columns=["Previsto 0", "Previsto 1"],
+    with st.expander("Detalhes do treinamento e matriz de confusão"):
+        st.write(
+            "Árvore de decisão com profundidade máxima 4, quatro entradas e mínimo de 500 registros por folha. Divisão por grupos mantém perfis idênticos em apenas um lado do treino/teste."
         )
-    )
+        a, b, c = st.columns(3)
+        a.metric("Registros", f"{m['rows']:,}")
+        b.metric("ROC AUC", f"{m['roc_auc']:.3f}")
+        c.metric("Precisão média (AP)", f"{m['average_precision']:.3f}")
+        st.caption(
+            "ROC AUC mede ordenação; AP resume precisão e sensibilidade ao variar o limiar. Nenhuma dessas métricas prova calibração ou aptidão clínica."
+        )
+        st.write("**Rótulo:** " + m["target"])
+        st.write(
+            f"**Matriz de confusão, limiar {m['threshold']:.2f}:** linhas = rótulo observado; colunas = classe prevista."
+        )
+        st.caption(m["threshold_method"])
+        st.dataframe(
+            pd.DataFrame(
+                m["confusion_matrix"],
+                index=["Observado 0", "Observado 1"],
+                columns=["Previsto 0", "Previsto 1"],
+            )
+        )
     for limit in m["limitations"]:
         st.write("• " + limit)
     st.link_button(
