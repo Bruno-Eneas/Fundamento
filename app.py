@@ -173,7 +173,7 @@ with st.sidebar:
     </div>""",
         unsafe_allow_html=True,
     )
-    st.caption("¹ Nos últimos 30 dias.")
+    st.caption("¹ Nos últimos 30 dias, fora do trabalho.")
     st.caption("Perfis fictícios. Não representam pacientes da Unimed.")
     analyze = st.button(
         "Analisar caso",
@@ -199,6 +199,7 @@ if st.session_state.get("case") != case:
 if analyze or "result" not in st.session_state:
     for stale in ["generated", "generation_error", "feedback_id"]:
         st.session_state.pop(stale, None)
+    st.session_state["feedback_revision"] = st.session_state.get("feedback_revision", 0) + 1
     with st.spinner("Calculando as contribuições e buscando evidências…"):
         result = explain(v)
         result["case"] = case
@@ -287,6 +288,7 @@ if navigation == "Análise":
         ):
             with st.spinner("Gerando rascunhos para revisão…"):
                 generate_result(st.session_state, generate)
+                st.session_state["feedback_revision"] += 1
         if st.session_state.get("generation_error"):
             st.error(st.session_state["generation_error"])
         if st.session_state.get("generated"):
@@ -307,7 +309,7 @@ if navigation == "Análise":
         st.caption(
             "Avaliação acadêmica de clareza e rastreabilidade; não equivale a validação médica. Não informe dados pessoais."
         )
-        with st.form("feedback"):
+        with st.form(f"feedback_{st.session_state['feedback_revision']}"):
             rating = st.radio(
                 "A apresentação permite conferir a explicação?",
                 ["Concordo", "Discordo", "Não consigo avaliar"],
@@ -367,6 +369,17 @@ if navigation == "Método":
     st.write("**Rótulo:** " + m["target"])
     st.write(
         f"**Matriz de confusão, limiar {m['threshold']:.2f}:** linhas = rótulo observado; colunas = classe prevista."
+    )
+    report = m["classification_report"]
+    positive, sensitivity, specificity = st.columns(3)
+    positive.metric("Precisão positiva", f"{report['1']['precision']:.2%}".replace(".", ","))
+    sensitivity.metric("Sensibilidade", f"{report['1']['recall']:.2%}".replace(".", ","))
+    specificity.metric("Especificidade", f"{report['0']['recall']:.2%}".replace(".", ","))
+    false_positives = m["confusion_matrix"][0][1]
+    true_positives = m["confusion_matrix"][1][1]
+    st.write(
+        f"Das {true_positives + false_positives} previsões positivas, "
+        f"{true_positives} corresponderam à classe 1 observada."
     )
     st.caption(m["threshold_method"])
     st.dataframe(
