@@ -9,3 +9,6 @@ runtime/
 *.pyc
 .env.*
 !.env.example
+# Gerados localmente na embalagem; nao devem criar commits circulares
+Fundamento.bundle
+HISTORICO_COMMITS.txt
