@@ -27,7 +27,7 @@ class AppTests(unittest.TestCase):
                 self.assertEqual(a.session_state["result"]["score"], score)
                 next(b for b in a.button if b.label == "Salvar avaliação").click().run()
                 self.assertFalse(any("registrada" in x.value for x in a.success))
-                a.radio[0].set_value("Concordo").run()
+                a.radio[0].set_value("Concordo")
                 next(b for b in a.button if b.label == "Salvar avaliação").click().run()
                 self.assertTrue(any("registrada" in x.value for x in a.success))
                 a.selectbox[0].select("Caso A — fictício").run()

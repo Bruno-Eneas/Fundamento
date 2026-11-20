@@ -1,12 +1,22 @@
-test_cases_themes_navigation_and_feedback (test_app.AppTests.test_cases_themes_navigation_and_feedback) ... 2026-11-16 23:44:07.494 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+test_cases_themes_navigation_and_feedback (test_app.AppTests.test_cases_themes_navigation_and_feedback) ... 2026-11-20 12:12:25.197 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
 ok
+test_schema_uses_literal_fields_and_signed_domain (test_charts.ChartTests.test_schema_uses_literal_fields_and_signed_domain) ... ok
 test_false_citation_blocked (test_core.CoreTests.test_false_citation_blocked) ... ok
 test_feedback_survives_connection (test_core.CoreTests.test_feedback_survives_connection) ... ok
 test_missing_and_invalid (test_core.CoreTests.test_missing_and_invalid) ... ok
 test_retrieval_and_abstention (test_core.CoreTests.test_retrieval_and_abstention) ... ok
 test_shap_reconstruction (test_core.CoreTests.test_shap_reconstruction) ... ok
+test_invalid_citation_and_json_rejected (test_generation.GenerationTests.test_invalid_citation_and_json_rejected) ... ok
+test_offline_returns_no_fake_text (test_generation.GenerationTests.test_offline_returns_no_fake_text) ... ok
+test_unconfigured_and_no_evidence (test_generation.GenerationTests.test_unconfigured_and_no_evidence) ... ok
+test_valid_json_and_protocol (test_generation.GenerationTests.test_valid_json_and_protocol) ... ok
+test_no_evidence_does_not_call_generator (test_session.SessionTests.test_no_evidence_does_not_call_generator) ... ok
+test_partial_failure_is_atomic (test_session.SessionTests.test_partial_failure_is_atomic) ... ok
+test_success_then_failure_clears_export (test_session.SessionTests.test_success_then_failure_clears_export) ... ok
+test_invalid_input_does_not_create_database (test_storage.StorageTests.test_invalid_input_does_not_create_database) ... ok
+test_nonfinite_payload_not_inserted (test_storage.StorageTests.test_nonfinite_payload_not_inserted) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.320s
+Ran 16 tests in 0.358s
 
 OK
