@@ -134,16 +134,20 @@ if navigation == 'Análise':
         if st.session_state.get('generation_error'):st.error(st.session_state['generation_error'])
         if st.session_state.get('generated'):
             st.warning('Rascunho experimental: IDs de fontes foram conferidos; o suporte semântico e a correção clínica exigem revisão humana.')
+            if not any(st.session_state['generated'].values()):
+                st.info('O modelo não produziu afirmações com suporte suficiente. Confira as fontes acima.')
             for f,claims in st.session_state['generated'].items():
                 for claim in claims: st.write(claim['text']+' ['+', '.join(claim['source_ids'])+']')
             r['generated_draft']=st.session_state['generated']
         st.subheader('Avalie a explicação')
         st.caption('Avaliação acadêmica de clareza e rastreabilidade; não equivale a validação médica. Não informe dados pessoais.')
         with st.form('feedback'):
-            rating=st.radio('A apresentação permite conferir a explicação?',['Concordo','Discordo','Não consigo avaliar'],horizontal=True)
+            rating=st.radio('A apresentação permite conferir a explicação?',['Concordo','Discordo','Não consigo avaliar'],horizontal=True,index=None)
             comment=st.text_area('Comentário opcional',max_chars=500)
             submitted=st.form_submit_button('Salvar avaliação')
-        if submitted:
+        if submitted and rating is None:
+            st.warning('Selecione uma avaliação antes de salvar.')
+        if submitted and rating is not None:
             try:
                 st.session_state['feedback_id']=save_feedback(r,rating,comment)
                 st.success('Avaliação registrada.')
