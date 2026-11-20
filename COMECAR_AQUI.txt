@@ -1,4 +1,4 @@
-FUNDAMENTO 8 — PAINEL SIMPLES DO PACIENTE E PAINEL DO MÉDICO
+FUNDAMENTO 9 — ENTRADA CORRIGIDA E PAINÉIS DO PACIENTE E DO MÉDICO
 Protótipo acadêmico. SOMENTE exemplos fictícios.
 
 1. Extraia o ZIP inteiro. Dentro da pasta Fundamento, execute Iniciar_Windows.bat.
@@ -34,3 +34,8 @@ REGRAS IMPORTANTES:
 - Não execute train.py para simplesmente testar o aplicativo.
 
 Consulte docs/Guia_v8.md e docs/Prompt_continuacao_v8.txt.
+
+ALTERAÇÃO DA VERSÃO 9:
+- Corrigida quebra da palavra Fundamento no cabeçalho da entrada.
+- Login centralizado e compacto, com melhor leitura em desktop e celular.
+- Consulte docs/Correcao_login_v9.md.

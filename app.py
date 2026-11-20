@@ -106,21 +106,41 @@ st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
 # Login DEMONSTRATIVO: nenhum perfil é exibido antes da verificação de senha.
 # Este módulo ainda NÃO implementa gestão de acesso adequada a dados reais.
 if "account" not in st.session_state:
-    st.markdown('<section class="f-hero"><h1>Fundamento</h1>'
-                '<p>Acompanhe seus exames ou consulte o histórico de pacientes fictícios.</p>'
-                '</section>', unsafe_allow_html=True)
-    st.info("Acesso de demonstração, com perfis e exames inteiramente fictícios. "
-            "Não insira dados pessoais ou documentos reais.")
-    col_login, _ = st.columns([1.2, 1])
-    with col_login:
+    st.markdown(
+        '<section class="f-hero f-hero--login">'
+        '<h1>Fundamento</h1>'
+        '<p>Seus exames de forma simples. Um histórico completo para o médico.</p>'
+        '</section>',
+        unsafe_allow_html=True,
+    )
+    st.info(
+        "Ambiente acadêmico com pacientes e exames fictícios. "
+        "Não envie informações ou documentos reais."
+    )
+    spacer_left, login_column, spacer_right = st.columns([0.72, 1.1, 0.72], gap="medium")
+    with login_column:
+        st.markdown(
+            '<div class="f-login-heading">'
+            '<h2>Acesse sua conta</h2>'
+            '<p>Paciente: número do perfil. Médico: usuário cadastrado.</p>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
         with st.form("demo_login", clear_on_submit=False):
-            login_code = st.text_input("Número do perfil ou usuário médico", placeholder="DEMO-001 ou MED-DEMO")
+            login_code = st.text_input(
+                "Número do perfil ou usuário médico",
+                placeholder="DEMO-001 ou MED-DEMO",
+            )
             login_password = st.text_input("Senha", type="password")
-            submitted_login = st.form_submit_button("Entrar", type="primary", width="stretch")
+            submitted_login = st.form_submit_button(
+                "Entrar", type="primary", width="stretch"
+            )
         if submitted_login:
             attempts = st.session_state.get("login_attempts", 0)
             if attempts >= 5:
-                st.error("Muitas tentativas nesta sessão. Reabra uma sessão para a demonstração.")
+                st.error(
+                    "Muitas tentativas nesta sessão. Reabra uma sessão para a demonstração."
+                )
             else:
                 account = authenticate(login_code, login_password)
                 if account is None:
@@ -133,9 +153,11 @@ if "account" not in st.session_state:
                         "Meu perfil" if account["role"] == "patient" else "Pacientes"
                     )
                     st.rerun()
-    st.caption("As credenciais iniciais são geradas somente no seu computador, no arquivo "
-               "`runtime/ACESSOS_DEMONSTRACAO.txt` após a primeira execução. "
-               "Não disponibilize esse arquivo publicamente.")
+        st.caption(
+            "Acessos fictícios criados no seu computador em "
+            "`runtime/ACESSOS_DEMONSTRACAO.txt`. "
+            "Não compartilhe esse arquivo."
+        )
     st.stop()
 
 account = st.session_state["account"]

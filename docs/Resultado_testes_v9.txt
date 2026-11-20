@@ -1,0 +1,36 @@
+Registro de execucao independente — 20/11/2026
+
+Comando: python -m unittest discover -s tests -v
+Plataforma: Python 3.13; nao foram instalados Streamlit e Altair neste ambiente.
+Total: 54 testes descobertos; 52 concluidos sem falhas; 2 erros de importacao (test_app / test_charts).
+Nao equivale a teste completo do Streamlit em navegador no Windows.
+
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/fundamento9_work/Fundamento/tests/test_app.py", line 3, in <module>
+    from streamlit.testing.v1 import AppTest
+ModuleNotFoundError: No module named 'streamlit'
+
+
+======================================================================
+ERROR: test_charts (unittest.loader._FailedTest.test_charts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_charts
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/fundamento9_work/Fundamento/tests/test_charts.py", line 2, in <module>
+    import altair as alt
+ModuleNotFoundError: No module named 'altair'
+
+
+----------------------------------------------------------------------
+Ran 54 tests in 2.320s
+
+FAILED (errors=2)
