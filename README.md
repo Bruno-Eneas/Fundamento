@@ -1,125 +1,64 @@
-# Fundamento 2
+# Fundamento
 
-Primeira versão executável do protótipo acadêmico. Não está pronta para uso clínico nem representa integração com a Unimed.
+Protótipo acadêmico de explicabilidade e consulta documental sobre indicadores de diabetes. Perfis fictícios; não confirma nem descarta doença. Não representa sistema oficial da Unimed.
 
 ## Começar no Windows
 
-1. Instale Python 3.12 pelo site oficial: https://www.python.org/downloads/windows/
-2. Extraia o ZIP inteiro. Não execute de dentro do arquivo compactado.
-3. Abra a pasta Fundamento_2.
-4. Clique duas vezes em Iniciar_Windows.bat. Na primeira execução ele cria um ambiente isolado e instala as dependências.
-5. Aguarde o navegador abrir. Se necessário, use o endereço local que o terminal mostrar, normalmente http://localhost:8501.
-6. Selecione um caso fictício e clique em Analisar caso. Confira contribuições, fontes e fator sem evidência; salve uma avaliação.
-7. Não feche o terminal enquanto estiver usando o aplicativo. Para encerrar, Ctrl+C.
+1. Extraia o ZIP inteiro, inclusive subpastas, para uma pasta nova.
+2. Instale Python 3.12 com launcher `py`. Abra `Iniciar_Windows.bat`.
+3. Para geração local, instale Ollama separadamente e execute no CMD `ollama pull qwen2.5:3b`. Mantenha o serviço ativo e abra `Iniciar_Com_Ollama.bat`.
+4. Use a **Local URL** exibida no terminal. Mantenha o terminal aberto. Ctrl+C encerra aquela instância.
+5. Caso B abre calculado. Troque o perfil, abra fontes e “Ver gráfico de contribuições SHAP”. A geração só ocorre ao clicar no botão. Escolha explicitamente a avaliação antes de salvar.
 
-Se der erro, copie o texto completo do terminal para o chat. Não envie senhas ou chaves.
+Não cole comandos de terminal em app.py. Para Linux: `bash Iniciar_Linux.sh` (script incluído; não testado como instalador nesta entrega).
 
-## Comandos equivalentes
+## Testar
 
-Dentro da pasta do projeto:
+No Windows já instalado, abra `Testar_Windows.bat` ou execute na raiz:
 
-    py -3.12 -m venv .venv
-    .venv\Scripts\python.exe -m pip install -r requirements.txt
-    .venv\Scripts\python.exe -m streamlit run app.py
+```bat
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
 
-Linux/macOS com Python 3.12:
+Nos demais ambientes instalados: `python -m unittest discover -s tests -v`. A suíte não exige Ollama nem PostgreSQL. Os testes HTTP são simulados. Veja docs/Verificacoes.md e docs/Resultado_testes.txt.
 
-    python3 -m venv .venv
-    .venv/bin/python -m pip install -r requirements.txt
-    .venv/bin/python -m streamlit run app.py
+## Arquitetura
 
-## O que está implementado e testado
+- app.py: interface, casos, navegação e exportação.
+- assets/theme.css: temas petróleo e branco/esmeralda; pinheiro ilustrativo.
+- src/core.py: validação, modelo, SHAP e recuperação TF-IDF.
+- src/charts.py: especificação compartilhada do gráfico.
+- src/session.py: geração transacional e limpeza de resultados antigos.
+- src/generation.py: requisição Ollama e validação estrutural das citações.
+- src/storage.py: SQLite e conector PostgreSQL.
+- assets/: modelo, métricas, regras, evidências e metadados.
+- tests/: testes do núcleo, interface, gráfico, geração, estado e armazenamento.
+- docs/: relatório técnico de continuidade, plano do grupo, registro de IA e prompt.
 
-- Modelo de árvore de decisão treinado sobre o arquivo público UCI CDC Diabetes Health Indicators.
-- Quatro variáveis: categoria de idade, IMC, atividade física e hipertensão relatada.
-- SHAP calculado sobre o modelo real, com verificação da reconstrução da saída.
-- Recuperação TF-IDF com filtro por fator em três fragmentos documentais.
-- Fontes e trechos acessíveis; ausência de evidência para hipertensão na base inicial é explícita.
-- Três casos fictícios fixos, sem formulário de prontuários reais.
-- Avaliações persistidas em SQLite local; exportação do registro do caso.
-- Regras explícitas de validação, abstenção e rastreabilidade.
-- Testes de núcleo e interface Streamlit sem navegador gráfico.
+## Entradas e limites
 
-## O que ainda NÃO foi concluído
+Árvore de profundidade 4, mínimo de 500 registros por folha; Age (categoria, não idade em anos), BMI, PhysActivity e HighBP. Há somente três perfis fictícios. Não existem entradas de glicemia, HbA1c ou histórico familiar.
 
-- O aplicativo não está publicado. Streamlit/Python não roda em hospedagem estática como GitHub Pages.
-- A geração Ollama foi observada no Windows de Daniel em etapa anterior; não foi repetida na validação deste pacote. A configuração é local a cada computador.
-- Busca e sínteses cadastradas isoladas não são RAG completo; geração com documentos está disponível quando Ollama funciona.
-- Conector PostgreSQL preparado, mas banco remoto não configurado nem testado.
-- Expertise clínica não foi coletada nem validada com médicos. As regras existentes são de engenharia, não XAG clínico validado.
-- Revisão clínica, semântica das respostas geradas, licença da base original e codificação original do rótulo precisam de conferência.
-- Sem auditoria de acessibilidade visual, segurança para produção ou validação externa.
-- O pacote não inclui relatório final, plano de disseminação ou slides da entrega.
+SHAP explica a saída do modelo, não causalidade clínica. O alvo Diabetes_binary não distingue tipos ou horizonte futuro. A descrição original e a licença continuam pendentes de reconciliação. Fontes NIDDK falam de diabetes tipo 2 e oferecem contexto geral. Não chamar o escore de risco clínico validado.
 
-## Sobre o rótulo e os números
+Busca TF-IDF por fator com três trechos cadastrados de uma fonte institucional. Hipertensão não tem suporte no conjunto atual; isso não prova ausência de associação. Geração recebe fatores e documentos, não prontuário nem valores SHAP. IDs são verificados, apoio semântico não. A expertise clínica não foi coletada/validada. XAG não é sinônimo de SHAP.
 
-O arquivo obtido tem 253.680 linhas, 21 entradas originais, ID e Diabetes_binary. Não tem valores ausentes. O modelo utiliza apenas quatro entradas. Não há HbA1c, glicemia ou histórico familiar nessas quatro entradas; não inventar essas variáveis.
+## Persistência e configuração
 
-A descrição UCI informa classe 1 = pré-diabetes ou diabetes, mas seu resumo contém inconsistências sobre quantidade de variáveis e classes. Até conciliar com o material original, o produto usa a expressão classe 1 de Diabetes_binary. Não dizer que prevê diabetes tipo 2 ou risco em cinco anos.
+`OLLAMA_MODEL=qwen2.5:3b`; `OLLAMA_URL` padrão `http://localhost:11434`. Configuração não garante serviço disponível. São chamadas sequenciais por fator, com timeout de 90 segundos cada.
 
-Treino, validação e teste são separados por grupos de perfis idênticos nas quatro entradas. O limiar de avaliação foi escolhido na validação para maximizar acurácia balanceada; não é limiar médico. Os resultados reais estão em assets/metrics.json. Não há avaliação externa nem calibração clínica.
+Sem `DATABASE_URL`, avaliações ficam em `runtime/feedback.sqlite`; `FUNDAMENTO_DB` pode mudar o caminho. Comentários até 500 caracteres. Não inserir dados pessoais. O botão de exportação gera JSON do caso, não backup do banco. Preserve runtime ao atualizar.
 
-O percentual é a saída estatística do modelo da base, não a probabilidade validada de doença de uma pessoa. SHAP mostra contribuição para esse modelo, não causalidade. Evidências sobre fatores de diabetes tipo 2 dão contexto geral e não validam o alvo do modelo.
+`DATABASE_URL` seleciona PostgreSQL. Nunca versionar segredos. Banco remoto, autenticação e implantação não foram concluídos. Servidor remoto não acessa automaticamente o Ollama do notebook. GitHub Pages não executa Streamlit/Python.
 
-## Onde cada coisa está
+## Treinamento (opcional, destrutivo para os artefatos atuais)
 
-- app.py: interface e fluxo.
-- src/core.py: validação, SHAP e busca de trechos.
-- src/storage.py: avaliações e persistência.
-- src/generation.py: conector opcional e validação estrutural de geração.
-- train.py: aquisição do CSV e treinamento reproduzível.
-- assets/model.joblib: modelo treinado neste projeto (não carregar artefatos de terceiros sem confiança).
-- assets/metrics.json: resultados reais e hash do CSV.
-- assets/evidence.json: sínteses, trechos curtos e fontes.
-- assets/rules.json: regras e estado de revisão.
-- assets/uci_metadata.json: metadados recuperados da UCI.
-- tests/: testes automatizados.
-- docs/: relatório de continuidade, prompt, pendências, testes e registro de IA.
+`python train.py` baixa o CSV e sobrescreve modelo/métricas; não é necessário para executar a demonstração ou os testes. O CSV não está incluído. Conferir licenças antes de redistribuir dados/modelos. Hash, divisão e desempenho completos em assets/metrics.json.
 
-## Geração opcional: preparar depois da primeira execução
+## Histórico Git
 
-O conector segue POST /api/chat do Ollama. Não instala nem baixa um modelo automaticamente. Depois de escolher e testar um modelo, o operador pode definir OLLAMA_MODEL e OLLAMA_URL no servidor; o padrão de URL local é http://localhost:11434.
+O ZIP inclui `.git` e o arquivo Fundamento.bundle preserva o mesmo histórico. Os commits foram criados em 20/11/2026: importação do protótipo existente e mudanças reais desta revisão. Não representam dias passados de desenvolvimento. Autor técnico: Assistente do projeto; não há atribuição fictícia aos integrantes. Veja docs/Git.md.
 
-No Windows, antes de iniciar a aplicação, em um terminal com Ollama já instalado e o modelo já disponível:
+## Antes da entrega acadêmica
 
-    set OLLAMA_MODEL=NOME_EXATO_DO_MODELO_INSTALADO
-    Iniciar_Windows.bat
-
-Não copie o nome acima literalmente: é um marcador. Não exponha seu servidor local publicamente sem controle de acesso. Na hospedagem, localhost é o próprio servidor de hospedagem, não seu notebook.
-
-O gerador recebe apenas o nome do fator e trechos, não um paciente real. Exige JSON com claims e source_ids. Citações ausentes ou desconhecidas bloqueiam a resposta. Esse controle é estrutural, não comprova suporte semântico. Textos gerados ficam rotulados como rascunhos para revisão. Falha da API não produz resposta simulada.
-
-## Persistência e publicação
-
-Localmente, os registros ficam em runtime/feedback.sqlite, ignorado pelo Git. Não use esse arquivo para persistência permanente em Streamlit Community Cloud.
-
-O conector PostgreSQL usa DATABASE_URL no ambiente/secrets. Use credencial restrita, TLS e base de demonstração. A aplicação cria a tabela feedback se permitido. Não colocar credenciais no repositório. O conector remoto ainda precisa de teste de gravação/leitura e de avaliação de permissões antes de publicar.
-
-Para Streamlit Community Cloud: criar repositório com os arquivos do projeto na raiz; selecionar repositório, ramo e app.py; selecionar Python 3.12; instalar dependências; configurar segredos no painel. Revisar licença e rótulo antes de publicar o modelo. Testar o link fora da conta do autor. Sem DATABASE_URL, os registros locais da hospedagem podem desaparecer.
-
-## Testar e reproduzir
-
-Na raiz do projeto:
-
-    python -m unittest discover -s tests -v
-
-Treinamento opcional, não necessário para executar os testes:
-
-    python train.py
-
-O segundo comando baixa novamente a fonte e sobrescreve o modelo e métricas. O CSV baixado fica em runtime e não integra o pacote. Conferir o hash se a fonte mudar. O conjunto original não foi incluído no ZIP; a licença deve ser conferida na fonte original antes da publicação e redistribuição.
-
-## Referências de implementação
-
-UCI: https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators
-Fonte original indicada pela UCI: https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset
-NIDDK: https://www.niddk.nih.gov/health-information/diabetes/overview/risk-factors-type-2-diabetes
-SHAP: https://shap.readthedocs.io/en/latest/generated/shap.TreeExplainer.html
-Ollama: https://docs.ollama.com/api/chat
-Streamlit: https://docs.streamlit.io/deploy/streamlit-community-cloud
-
-Fontes consultadas em 16/11/2026. Revisar fontes clínicas atuais com o responsável pela frente B.
-
-
-## Entrega de continuidade
-Leia COMECAR_AQUI.txt, docs/Relatorio_continuidade.pdf e docs/Prompt_continuidade.txt. Interface atualizada; testes registrados em docs/Resultado_testes.txt. Visual integral e geração local devem ser conferidos em cada computador.
+Faltam enunciado original e imagens de referência aprovadas para fechar conformidade acadêmica e visual. Relatório de continuidade não é relatório acadêmico final. Conferir docs/Proximas_tarefas.md. Não afirmar publicação, parceria operacional, validação médica ou ausência de alucinações.

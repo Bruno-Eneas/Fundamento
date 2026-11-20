@@ -1,22 +1,16 @@
-FUNDAMENTO - ENTREGA DE CONTINUIDADE
+FUNDAMENTO — PROJETO COM HISTÓRICO GIT
 
-1. Extraia esta pasta inteira. Nao execute dentro do ZIP.
-2. Instale Python 3.12 com launcher py e PATH.
-3. Para usar a geracao, instale Ollama e execute no Prompt de Comando:
-   ollama pull qwen2.5:3b
-4. Abra Iniciar_Com_Ollama.bat. O iniciador cria o ambiente e instala os pacotes.
-   Para usar so modelo/fontes, use Iniciar_Windows.bat.
-5. Use a Local URL informada no terminal. Mantenha esse terminal aberto.
+1. Extraia o ZIP inteiro para uma pasta nova. Não rode dentro do ZIP.
+2. Abra Iniciar_Windows.bat (Python 3.12 necessário).
+3. Para geração: instale Ollama, baixe qwen2.5:3b e abra Iniciar_Com_Ollama.bat.
+4. Use a Local URL do terminal, não uma aba antiga em outra porta.
+5. Testar_Windows.bat executa a suíte depois de instalar o ambiente.
+6. Leia README.md e docs/Relatorio_continuidade.pdf.
 
-O Caso B abre calculado automaticamente. Todos os perfis sao ficticios.
-O grafico fica em "Ver grafico de contribuicoes SHAP".
-Claro/Escuro sao botoes no topo; a navegacao fica na lateral.
-O modelo de linguagem so gera texto ao clicar no botao correspondente.
+O pacote inclui código, testes, modelo demonstrativo e histórico .git.
+Não inclui .venv, modelo Ollama, CSV original, credenciais ou banco pessoal.
+O arquivo Fundamento.bundle permite restaurar o histórico com Git instalado.
+O prompt da pasta docs serve para uma conversa comum e não exige Work Mode.
 
-Este pacote NAO inclui o modelo Ollama, .venv, banco de avaliacoes de Daniel,
-chaves de acesso ou dados de pacientes. Crie o ambiente em cada computador.
-Nao ha publicacao online nem validacao clinica concluida.
-
-Se voce ja tem o projeto rodando, pode substituir apenas app.py apos um backup.
-As avaliacoes locais ficam em runtime; preserve sua pasta antiga.
-Leia docs/Relatorio_continuidade.pdf e docs/Prompt_continuidade.txt.
+Preserve sua instalação antiga como backup. Não substitua apenas app.py:
+esta versão usa src/session.py, src/charts.py e assets/theme.css novos.
