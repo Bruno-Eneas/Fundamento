@@ -1,66 +1,64 @@
-# Fundamento
+# Fundamento | Avaliação laboratorial explicável
 
-Protótipo acadêmico de explicabilidade e consulta documental sobre indicadores de diabetes. Perfis fictícios; não confirma nem descarta doença. Não representa sistema oficial da Unimed.
+**Estado do produto: protótipo acadêmico demonstrativo, sem validação clínica, sem publicação pública comprovada.** Não integra sistemas da Unimed ou qualquer operadora. Não aceita dados de pacientes identificáveis como condição de uso da demonstração.
 
-## Começar no Windows
+## Qual problema resolve
 
-1. Extraia o ZIP inteiro, inclusive subpastas, para uma pasta nova.
-2. Instale Python 3.12 com launcher `py`. Abra `Iniciar_Windows.bat`.
-3. Para geração local, instale Ollama separadamente e execute no CMD `ollama pull qwen2.5:3b`. Mantenha o serviço ativo e abra `Iniciar_Com_Ollama.bat`.
-4. Use a **Local URL** exibida no terminal. Mantenha o terminal aberto. Ctrl+C encerra aquela instância.
-5. Caso B abre calculado. Troque o perfil, abra fontes e “Ver gráfico de contribuições SHAP”. A geração só ocorre ao clicar no botão. Escolha explicitamente a avaliação antes de salvar.
+Apresenta resultados de exames de diabetes de forma explicável: qual valor foi usado, com qual faixa laboratorial foi comparado, por que o conjunto é inconclusivo ou requer confirmação e quais diretrizes fundamentam a interpretação. **Não emite diagnóstico, não exclui diabetes e não produz probabilidade clínica individual sem um modelo validado.**
 
-Não cole comandos de terminal em app.py. Para Linux: `bash Iniciar_Linux.sh` (script incluído; não testado como instalador nesta entrega).
+## Executar no Windows
 
-## Testar
+1. Extraia a pasta completa do ZIP em local de fácil acesso.
+2. Instale Python 3.12. Na pasta Fundamento execute `Iniciar_Windows.bat` (cria `.venv`, instala dependências e abre Streamlit).
+3. Abra a **Local URL** exibida no terminal. Não cole comandos dentro de `app.py`.
+4. Na página **Exames**, clique nos exemplos A, B e C ou digite valores fictícios; clique em **Analisar exames**. Confira resultado, faixas e fontes.
+5. Na aba **Análise**, explore a árvore de decisão histórica com dados fictícios e, opcionalmente, seus textos gerados por Ollama. Este escore **não** é a probabilidade da avaliação laboratorial.
+6. Execute `Testar_Windows.bat` para a suíte completa. Confirme o resultado na sua máquina.
 
-No Windows já instalado, abra `Testar_Windows.bat` ou execute na raiz:
+Opcional: com Ollama ativo, executar `ollama pull qwen2.5:3b` e abrir `Iniciar_Com_Ollama.bat` para geração **somente no módulo histórico**. O módulo Exames não requer Ollama.
 
-```bat
-.venv\Scripts\python.exe -m unittest discover -s tests -v
-```
+## O que o módulo Exames recebe
 
-Nos demais ambientes instalados: `python -m unittest discover -s tests -v`. A suíte não exige Ollama nem PostgreSQL. Os testes HTTP são simulados. Veja docs/Verificacoes.md e docs/Resultado_testes.txt.
+- Glicemia plasmática em jejum (mg/dL), HbA1c (%) e, opcionalmente, TTGO 75 g de 1h/2h (mg/dL) ou glicemia plasmática casual (mg/dL).
+- Informações declaradas sobre condições de coleta, gestação, faixa adulta, diagnóstico anterior, sintomas e possível interferência na HbA1c.
+- PDF textual fictício anonimizado (até 5 MB, 8 páginas) com leitura **experimental** por rótulos. O operador deve conferir manualmente os números. PDFs escaneados ou ambíguos exigem digitação manual. **Não enviar documentos identificáveis.**
+
+A avaliação é deliberadamente conservadora: resultados isolados na faixa de diabetes exigem confirmação em regra geral; resultados discordantes geram aviso; dados ausentes ou fora do escopo geram abstenção. Em qualquer caso a tela explica as fontes e a ausência de probabilidade individual validada.
+
+## Fontes prioritárias
+
+1. [SBD — Diagnóstico de diabetes mellitus, edição 2026](https://diretriz.diabetes.org.br/diagnostico-de-diabetes-mellitus/)
+2. [ADA — Standards of Care in Diabetes, seção 2, 2026](https://doi.org/10.2337/dc26-s002)
+3. [NIDDK/NIH — Diabetes Tests & Diagnosis](https://www.niddk.nih.gov/health-information/diabetes/overview/tests-diagnosis)
+
+As faixas estão em `src/clinical.py`; links não representam aprovação da plataforma por essas organizações.
 
 ## Arquitetura
 
-- app.py: interface, casos, navegação e exportação.
-- assets/theme.css: temas petróleo e branco/esmeralda; pinheiro ilustrativo.
-- src/core.py: validação, modelo, SHAP e recuperação TF-IDF.
-- src/charts.py: especificação compartilhada do gráfico.
-- src/session.py: geração transacional e limpeza de resultados antigos.
-- src/generation.py: requisição Ollama e validação estrutural das citações.
-- src/storage.py: SQLite e conector PostgreSQL.
-- assets/: modelo, métricas, regras, evidências e metadados.
-- tests/: testes do núcleo, interface, gráfico, geração, estado e armazenamento.
-- docs/: relatório técnico de continuidade, plano do grupo, registro de IA e prompt.
+| Arquivo | Função |
+|---|---|
+| `app.py` | Interface, navegação, formulários, avisos e visual claro/escuro |
+| `src/clinical.py` | Regras de faixa e abstenção, retorno estruturado e fontes |
+| `src/lab_pdf.py` | Leitura local conservadora de PDFs textuais demonstrativos |
+| `src/core.py` / `src/charts.py` | Modelo histórico e gráfico SHAP, **separados** |
+| `src/generation.py` / `src/session.py` | Gerador Ollama opcional e controle transacional |
+| `src/storage.py` | Banco de feedback do módulo histórico, SQLite ou PostgreSQL |
+| `assets/theme.css`, `hero_*.svg` | Tema visual e paisagens próprias em verde |
+| `tests/` | Suíte de regressões clínicas, leitura PDF e modelo histórico |
+| `docs/Entrega/` | Relatório técnico, plano e apresentação **para conferência** |
 
-## Entradas e limites
+## Requisitos do professor e entregas
 
-Árvore de profundidade 4, mínimo de 500 registros por folha; Age (categoria, não idade em anos), BMI, PhysActivity e HighBP. Há somente três perfis fictícios. Não existem entradas de glicemia, HbA1c ou histórico familiar.
+O enunciado oficial em `docs/Enunciado.pdf` exige: aplicativo funcional publicamente acessível; relatório técnico **15–25 páginas** com 22 tópicos; plano de disseminação **5–10 páginas**; apresentação de **15 minutos** e arguição de **20 minutos**; declaração de uso de IA. A pasta `docs/Entrega/` traz versões acadêmicas preparadas para conferência. **Data/hora final, nomes dos colegas, URL pública, testes Windows e revisão médica ainda faltam.**
 
-SHAP explica a saída do modelo, não causalidade clínica. O alvo Diabetes_binary não distingue tipos ou horizonte futuro. A descrição original e a licença continuam pendentes de reconciliação. Fontes NIDDK falam de diabetes tipo 2 e oferecem contexto geral. Não chamar o escore de risco clínico validado.
+## Limites e privacidade
 
-Busca TF-IDF por fator com três trechos cadastrados de uma fonte institucional. Hipertensão não tem suporte no conjunto atual; isso não prova ausência de associação. Geração recebe fatores e documentos, não prontuário nem valores SHAP. IDs são verificados, apoio semântico não. A expertise clínica não foi coletada/validada. XAG não é sinônimo de SHAP.
+Esta aplicação não possui autenticação, adequação completa à LGPD, sistema de prontuário ou modelo de predição clínica calibrado. Evitar uso com exames de pessoas reais mesmo quando hospedada. As entradas não são deliberadamente salvas pelo módulo Exames, mas toda hospedagem tem riscos de infraestrutura/logs; não interpretar essa restrição de código como certificação de privacidade. Avaliar governança, segurança e regulação antes de qualquer piloto com pacientes.
 
-## Persistência e configuração
+## Treinamento e artefatos históricos
 
-`OLLAMA_MODEL=qwen2.5:3b`; `OLLAMA_URL` padrão `http://localhost:11434`. Configuração não garante serviço disponível. São chamadas sequenciais por fator, com timeout de 90 segundos cada.
+**Não execute `train.py` para testar o site**: baixa dados e pode sobrescrever o modelo antigo. O modelo `.joblib` deve ser carregado apenas deste pacote confiável. A árvore histórica usa idade codificada, IMC, atividade física e hipertensão; não recebe glicemia nem HbA1c. Suas métricas e dados de treinamento não validam a interpretação laboratorial.
 
-Sem `DATABASE_URL`, avaliações ficam em `runtime/feedback.sqlite`; `FUNDAMENTO_DB` pode mudar o caminho. Comentários até 500 caracteres. Não inserir dados pessoais. O botão de exportação gera JSON do caso, não backup do banco. Preserve runtime ao atualizar.
+## Git
 
-`DATABASE_URL` seleciona PostgreSQL. Nunca versionar segredos. Banco remoto, autenticação e implantação não foram concluídos. Servidor remoto não acessa automaticamente o Ollama do notebook. GitHub Pages não executa Streamlit/Python.
-
-## Treinamento (opcional, destrutivo para os artefatos atuais)
-
-`python train.py` baixa o CSV e sobrescreve modelo/métricas; não é necessário para executar a demonstração ou os testes. O CSV não está incluído. Conferir licenças antes de redistribuir dados/modelos. Hash, divisão e desempenho completos em assets/metrics.json.
-
-## Histórico Git
-
-O ZIP inclui `.git` e `Fundamento.bundle`, que preserva o mesmo histórico. Os commits foram criados em 20/11/2026: importação do protótipo existente e mudanças reais desta revisão. Não representam dias passados de desenvolvimento. Autor técnico: Assistente do projeto; não há atribuição fictícia aos integrantes. Veja docs/Git.md.
-
-## Antes da entrega acadêmica
-
-O **enunciado original** foi recebido em 20/11/2026 e está em `docs/Enunciado.pdf`. A matriz completa em `docs/Matriz_requisitos.md` confirma **publicação pública obrigatória**, relatório técnico de **15–25 páginas**, plano de disseminação de **5–10 páginas**, apresentação de **15 minutos** e arguição de **20 minutos**. Esses materiais acadêmicos ainda precisam ser finalizados. O dia/horário final da apresentação deve ser confirmado com o professor.
-
-A auditoria independente está em `docs/Auditoria_20_11.md`; as imagens de referência aprovadas ainda não estão disponíveis. Não afirmar publicação, parceria operacional, validação médica ou ausência de alucinações.
+A pasta `.git` e o `Fundamento.bundle` preservam o histórico real disponível. Não alterar datas/autoria para simular trabalho de integrantes. Consulte `docs/Git.md`.

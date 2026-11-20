@@ -1,3 +1,5 @@
+> DOCUMENTO HISTÓRICO (antes da mudança de escopo). Para o módulo atual de exames, ver README.md, docs/Plano_validacao_laboratorial.md e docs/Entrega/.
+
 > **Nota posterior:** este relatório documenta o estado anterior ao recebimento do enunciado. Para requisitos oficiais, consulte `Enunciado.pdf` e `Matriz_requisitos.md`.
 
 # Fundamento | Continuidade

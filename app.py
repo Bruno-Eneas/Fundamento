@@ -1,4 +1,4 @@
-import json, os
+import json, os, base64
 from pathlib import Path
 import pandas as pd
 import streamlit as st
@@ -7,10 +7,12 @@ from src.storage import save_feedback
 from src.generation import generate
 from src.session import generate_result
 from src.charts import contribution_spec
+from src.clinical import evaluate_labs, SOURCES
+from src.lab_pdf import extract_labs_from_pdf
 
 ROOT = Path(__file__).parent
 st.set_page_config(
-    page_title="Fundamento | Demonstração", page_icon="🔎", layout="wide"
+    page_title="Fundamento | Exames e evidências", page_icon="🌲", layout="wide"
 )
 # Segredos só são lidos no servidor, nunca colocados na interface.
 for name in ["DATABASE_URL", "OLLAMA_URL", "OLLAMA_MODEL"]:
@@ -30,42 +32,26 @@ def choose_page(value):
 
 
 st.session_state.setdefault("appearance", "Claro")
-st.session_state.setdefault("navigation", "Análise")
+st.session_state.setdefault("navigation", "Exames")
 appearance = st.session_state["appearance"]
 dark = appearance == "Escuro"
 colors = (
     {
-        "bg": "#09272b",
-        "surface": "#10373c",
-        "raised": "#16454a",
-        "text": "#eff9f7",
-        "muted": "#b4cfce",
-        "line": "#356064",
-        "accent": "#7ee5bd",
-        "button": "#008655",
-        "onbutton": "#ffffff",
-        "warning": "#463615",
-        "warntext": "#ffe8ad",
-        "info": "#163e43",
-        "infotext": "#d2ece8",
-        "side": "#062125",
+        "bg": "#062f29", "surface": "#0a4235", "raised": "#0d4d3d",
+        "text": "#f1fff7", "muted": "#b9dacc", "line": "#286f57",
+        "accent": "#6fe3aa", "button": "#009e61", "onbutton": "#ffffff",
+        "warning": "#49401c", "warntext": "#fff1bc", "warn-border": "#968139",
+        "info": "#114d3f", "infotext": "#d5ffea", "side": "#03452f",
+        "badge-bg": "#124c3d", "badge-text": "#e6fff2",
     }
     if dark
     else {
-        "bg": "#f6f8f7",
-        "surface": "#ffffff",
-        "raised": "#eef5f1",
-        "text": "#123a2c",
-        "muted": "#4f6a60",
-        "line": "#d6e3dd",
-        "accent": "#00794d",
-        "button": "#00794d",
-        "onbutton": "#ffffff",
-        "warning": "#fff0cf",
-        "warntext": "#654207",
-        "info": "#eaf4ef",
-        "infotext": "#244d3a",
-        "side": "#005238",
+        "bg": "#fcfefd", "surface": "#f3fbf6", "raised": "#e8f7ee",
+        "text": "#06432e", "muted": "#477766", "line": "#bfe4cf",
+        "accent": "#007d4b", "button": "#007e4b", "onbutton": "#ffffff",
+        "warning": "#fff5da", "warntext": "#654709", "warn-border": "#e9c969",
+        "info": "#e9f8ef", "infotext": "#1f543b", "side": "#045538",
+        "badge-bg": "#e6f6eb", "badge-text": "#065037",
     }
 )
 with st.container(key="topbar"):
@@ -93,12 +79,15 @@ with st.container(key="topbar"):
                 args=("Escuro",),
                 width="stretch",
             )
+hero_svg = (ROOT / "assets" / ("hero_dark.svg" if dark else "hero_light.svg")).read_bytes()
+hero_data = base64.b64encode(hero_svg).decode("ascii")
 css = (ROOT / "assets/theme.css").read_text(encoding="utf-8")
 css = (
     css.replace(
         "__VARS__", ";".join("--" + k + ":" + v for k, v in colors.items()) + ";"
     )
     .replace("__SCHEME__", "dark" if dark else "light")
+    .replace("__HERO__", hero_data)
 )
 st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
 metrics = json.loads((ROOT / "assets/metrics.json").read_text(encoding="utf-8"))
@@ -108,13 +97,14 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     with st.container(key="side_navigation"):
-        for page, icon in [
-            ("Análise", ":material/bar_chart:"),
-            ("Evidências", ":material/menu_book:"),
-            ("Método", ":material/science:"),
+        for page, label, icon in [
+            ("Exames", "Exames laboratoriais", ":material/biotech:"),
+            ("Análise", "Modelo experimental", ":material/bar_chart:"),
+            ("Evidências", "Fontes e evidências", ":material/menu_book:"),
+            ("Método", "Método e limites", ":material/science:"),
         ]:
             st.button(
-                page,
+                label,
                 key="nav_" + page,
                 icon=icon,
                 width="stretch",
@@ -126,61 +116,182 @@ with st.sidebar:
             )
     navigation = st.session_state["navigation"]
     st.divider()
-    case = st.radio(
-        "Perfil demonstrativo",
-        list(CASES),
-        index=1,
-        format_func=lambda name: name.split(" —")[0],
-        horizontal=True,
-        key="profile_choice",
-    )
-    v = CASES[case]
+    if navigation == "Análise":
+        case = st.radio(
+            "Perfil demonstrativo",
+            list(CASES),
+            index=1,
+            format_func=lambda name: name.split(" —")[0],
+            horizontal=True,
+            key="profile_choice",
+        )
+        v = CASES[case]
+        st.markdown(
+            f"""<div class="f-profile">
+        <div class="f-row"><span>Faixa etária</span><strong>{AGES[v["Age"] - 1]} anos</strong></div>
+        <div class="f-row"><span>IMC</span><strong>{v["BMI"]} kg/m²</strong></div>
+        <div class="f-row"><span>Atividade física¹</span><strong>{"Sim" if v["PhysActivity"] else "Não"}</strong></div>
+        <div class="f-row"><span>Hipertensão relatada</span><strong>{"Sim" if v["HighBP"] else "Não"}</strong></div>
+        </div>""",
+            unsafe_allow_html=True,
+        )
+        st.caption("¹ Nos últimos 30 dias, fora do trabalho.")
+        st.caption("Perfis fictícios. Não representam pacientes da Unimed.")
+        analyze = st.button(
+            "Analisar caso",
+            type="primary",
+            width="stretch",
+            on_click=choose_page,
+            args=("Análise",),
+        )
+        st.divider()
+        st.caption(
+            "Geração: "
+            + (
+                "conector configurado"
+                if os.environ.get("OLLAMA_MODEL")
+                else "modelo não configurado"
+            )
+        )
+        st.caption("Expertise clínica: revisão especializada pendente.")
+    else:
+        st.caption("**Avaliação laboratorial**")
+        st.caption("Use apenas exames fictícios ou anonimizados. Nenhum documento é salvo intencionalmente.")
+        st.caption("Exames reais exigem proteção de dados e validação institucional.")
+
+if navigation == "Análise":
+    if st.session_state.get("case") != case:
+        for k in ["result", "feedback_id", "generated", "generation_error"]:
+            st.session_state.pop(k, None)
+        st.session_state["case"] = case
+    if analyze or "result" not in st.session_state:
+        for stale in ["generated", "generation_error", "feedback_id"]:
+            st.session_state.pop(stale, None)
+        st.session_state["feedback_revision"] = st.session_state.get("feedback_revision", 0) + 1
+        with st.spinner("Calculando as contribuições e buscando evidências…"):
+            result = explain(v)
+            result["case"] = case
+            result["inputs"] = v
+            result["retrieved"] = {f["feature"]: retrieve(f["feature"]) for f in result["factors"]}
+            result["rules_version"] = "0.1"
+            st.session_state["result"] = result
+if navigation == "Exames":
     st.markdown(
-        f"""<div class="f-profile">
-    <div class="f-row"><span>Faixa etária</span><strong>{AGES[v["Age"] - 1]} anos</strong></div>
-    <div class="f-row"><span>IMC</span><strong>{v["BMI"]} kg/m²</strong></div>
-    <div class="f-row"><span>Atividade física¹</span><strong>{"Sim" if v["PhysActivity"] else "Não"}</strong></div>
-    <div class="f-row"><span>Hipertensão relatada</span><strong>{"Sim" if v["HighBP"] else "Não"}</strong></div>
-    </div>""",
+        '<section class="f-hero"><h1>Entenda seus exames de diabetes</h1>'
+        '<p>Compare resultados laboratoriais com critérios públicos, confira as fontes e saiba quando faltam informações.</p></section>',
         unsafe_allow_html=True,
     )
-    st.caption("¹ Nos últimos 30 dias, fora do trabalho.")
-    st.caption("Perfis fictícios. Não representam pacientes da Unimed.")
-    analyze = st.button(
-        "Analisar caso",
-        type="primary",
-        width="stretch",
-        on_click=choose_page,
-        args=("Análise",),
+    st.markdown(
+        '<div class="f-warning"><strong>ⓘ Demonstração acadêmica.</strong> '
+        'Não é diagnóstico médico. Use somente resultados fictícios ou previamente anonimizados. '
+        'A plataforma não calcula probabilidade clínica individual sem um modelo validado.</div>',
+        unsafe_allow_html=True,
     )
+    st.markdown('<div class="f-title">01 · Informe os resultados</div>', unsafe_allow_html=True)
+    st.caption('Preencha apenas os exames disponíveis; deixe os demais em branco. Confira unidades, datas e condições de coleta.')
+    st.markdown('**Conheça primeiro com um caso fictício:**')
+    ea, eb, ec = st.columns(3)
+    demo_examples = {
+        'A': {'glicemia_jejum': '90', 'hba1c': '5,3'},
+        'B': {'glicemia_jejum': '132', 'hba1c': '6,8'},
+        'C': {'glicemia_jejum': '94', 'hba1c': '6,7'},
+    }
+    chosen = None
+    if ea.button('Exemplo A · Sem alteração', key='ex_A', width='stretch'):
+        chosen = 'A'
+    if eb.button('Exemplo B · Concordantes', key='ex_B', width='stretch'):
+        chosen = 'B'
+    if ec.button('Exemplo C · Discordantes', key='ex_C', width='stretch'):
+        chosen = 'C'
+    if chosen:
+        for k in ['glicemia_jejum', 'hba1c', 'ttgo_1h', 'ttgo_2h', 'glicemia_casual']:
+            st.session_state['lab_' + k] = demo_examples[chosen].get(k, '')
+        st.session_state.pop('lab_result', None)
+    with st.expander('Importar valores de PDF textual fictício (experimental)'):
+        st.warning('Não envie documentos com nome, CPF, data de nascimento ou informações identificáveis. A leitura é local ao servidor e não usa IA externa.')
+        document = st.file_uploader('PDF fictício e anonimizado de até 5 MB', type=['pdf'], key='lab_upload')
+        if document and st.button('Ler rótulos e valores do PDF', key='read_lab_pdf'):
+            try:
+                found, notices = extract_labs_from_pdf(document.getvalue())
+                for n in notices:
+                    st.info(n)
+                if found:
+                    st.write('Valores identificados (confira antes de analisar):')
+                    st.write(found)
+                    for k, val in found.items():
+                        st.session_state['lab_'+k] = str(val).replace('.', ',')
+                    st.session_state.pop('lab_result',None)
+            except ValueError as e:
+                st.error(str(e))
+    with st.form('exam_form'):
+        f1, f2 = st.columns(2)
+        f1.text_input('Glicemia plasmática em jejum (mg/dL)', placeholder='Ex.: 102', key='lab_glicemia_jejum')
+        f2.text_input('Hemoglobina glicada HbA1c (%)', placeholder='Ex.: 5,8', key='lab_hba1c')
+        f3, f4 = st.columns(2)
+        f3.text_input('TTGO 75 g, 1 hora (mg/dL) · opcional', key='lab_ttgo_1h')
+        f4.text_input('TTGO 75 g, 2 horas (mg/dL) · opcional', key='lab_ttgo_2h')
+        st.text_input('Glicemia plasmática casual (mg/dL) · opcional', key='lab_glicemia_casual')
+        with st.expander('Condições de coleta e segurança', expanded=True):
+            a,b=st.columns(2)
+            adult=a.checkbox('Pessoa adulta (18 anos ou mais)',value=True,key='lab_adult')
+            pregnant=b.checkbox('Gestação',value=False,key='lab_pregnant')
+            known=a.checkbox('Já possui diagnóstico conhecido de diabetes',value=False,key='lab_known')
+            symptoms=b.checkbox('Sintomas típicos (sede intensa, muita urina ou perda de peso)',value=False,key='lab_symptoms')
+            fasting=a.checkbox('Jejum de 8 a 12 h confirmado',value=True,key='lab_fasting')
+            ogtt=b.checkbox('TTGO realizado com 75 g',value=True,key='lab_ogtt')
+            certified=a.checkbox('Método de HbA1c padronizado pelo laboratório',value=True,key='lab_certified')
+            interference=b.checkbox('Possível interferência na HbA1c (anemia, transfusão etc.)',value=False,key='lab_interference')
+        analyzed=st.form_submit_button('Analisar exames', type='primary', width='stretch')
+    if analyzed:
+        values={k: st.session_state.get('lab_'+k) for k in
+                ['glicemia_jejum','hba1c','ttgo_1h','ttgo_2h','glicemia_casual']}
+        try:
+            result=evaluate_labs(values,adult=adult,pregnant=pregnant,known_diabetes=known,
+                fasting_confirmed=fasting,ogtt_75g_confirmed=ogtt,
+                certified_a1c=certified,a1c_interference=interference,classic_symptoms=symptoms)
+            st.session_state['lab_result']=result.to_dict()
+        except ValueError as e:
+            st.session_state.pop('lab_result',None)
+            st.error(str(e))
+    if st.session_state.get('lab_result'):
+        r=st.session_state['lab_result']
+        st.markdown('<div class="f-title">02 · Resultado da avaliação</div>', unsafe_allow_html=True)
+        st.subheader(r['headline'])
+        st.write(r['explanation'])
+        st.info('**Probabilidade clínica individual: não disponível.** '+r['probability_reason'])
+        if r['measurements']:
+            st.dataframe(pd.DataFrame(r['measurements']),hide_index=True,width='stretch')
+        for n in r['notes']:
+            st.warning(n)
+        if r['next_steps']:
+            st.markdown('**O que conferir a seguir**')
+            for step in r['next_steps']:
+                st.write('• '+step)
+        st.markdown('<div class="f-title">03 · De onde vem essa interpretação?</div>', unsafe_allow_html=True)
+        for sid in r['source_ids']:
+            src=SOURCES[sid]
+            st.markdown(f'**{sid}** · [{src["title"]}]({src["url"]})')
+        st.caption('A aplicação usa regras determinísticas rastreáveis. Nenhuma síntese clínica desta tela é gerada por Ollama.')
+        st.download_button('Baixar resultado demonstrativo em JSON',
+            json.dumps(r,ensure_ascii=False,indent=2),file_name='Fundamento_exames.json',mime='application/json')
+    else:
+        st.caption('Ao selecionar “Analisar exames”, o Fundamento informa se os valores atendem a alguma faixa de referência, se exigem confirmação ou se faltam dados.')
     st.divider()
-    st.caption(
-        "Geração: "
-        + (
-            "conector configurado"
-            if os.environ.get("OLLAMA_MODEL")
-            else "modelo não configurado"
-        )
-    )
-    st.caption("Expertise clínica: revisão especializada pendente.")
-if st.session_state.get("case") != case:
-    for k in ["result", "feedback_id", "generated", "generation_error"]:
-        st.session_state.pop(k, None)
-    st.session_state["case"] = case
-if analyze or "result" not in st.session_state:
-    for stale in ["generated", "generation_error", "feedback_id"]:
-        st.session_state.pop(stale, None)
-    st.session_state["feedback_revision"] = st.session_state.get("feedback_revision", 0) + 1
-    with st.spinner("Calculando as contribuições e buscando evidências…"):
-        result = explain(v)
-        result["case"] = case
-        result["inputs"] = v
-        result["retrieved"] = {
-            f["feature"]: retrieve(f["feature"]) for f in result["factors"]
-        }
-        result["rules_version"] = "0.1"
-        st.session_state["result"] = result
+    st.markdown('**Outros exames** podem ser necessários conforme a situação clínica. A seleção depende de profissional habilitado; o aplicativo não prescreve testes.')
+    st.caption('A etapa estatística de probabilidade calibrada permanece em desenvolvimento e depende de dados e validação externos. A aba Análise contém um modelo histórico de indicadores de saúde, separado da avaliação laboratorial.')
+
 if navigation == "Análise":
+    st.markdown(
+        '<section class="f-hero"><h1>Como o modelo interpreta este perfil?</h1>'
+        '<p>Escolha um dos três casos fictícios para explorar o resultado e conferir suas fontes.</p></section>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="f-warning"><strong>ⓘ Uso educacional.</strong> '
+        'Estes casos ilustram um modelo treinado com dados históricos. O aplicativo não '
+        'determina se uma pessoa tem diabetes nem prevê se ela vai desenvolver a doença.</div>',
+        unsafe_allow_html=True,
+    )
     if "result" not in st.session_state:
         st.markdown(
             """<div class="f-empty"><div class="f-eyebrow" >UMA EXPLICAÇÃO QUE VOCÊ PODE CONFERIR</div>
@@ -190,24 +301,15 @@ if navigation == "Análise":
         )
     else:
         r = st.session_state["result"]
-        st.title(f"{case.split(' —')[0]} · Resultado do modelo")
+        st.markdown(
+            f'<div class="f-title">{case.split(" —")[0]} · Leitura do resultado</div>',
+            unsafe_allow_html=True,
+        )
         threshold = metrics["threshold"]
         positive = r["score"] >= threshold
         label = "Classe 1" if positive else "Classe 0"
         comparison = "atingiu ou superou" if positive else "ficou abaixo de"
         cutoff = f"{threshold:.0%}"
-        score_label = f"{r['score']:.1%}".replace(".", ",")
-        st.markdown(
-            f'<section class="prediction"><span>Classificação experimental do perfil fictício</span>'
-            f'<h2>{label}</h2><p>O escore de <strong>{score_label}</strong> {comparison} o corte '
-            f'de {cutoff} usado na avaliação do modelo.</p></section>',
-            unsafe_allow_html=True,
-        )
-        st.caption(
-            "Como interpretar: classe 1 = registro com rótulo combinado de pré-diabetes ou diabetes; "
-            "classe 0 = registro sem esse rótulo, na base histórica. O modelo não confirma nem "
-            "exclui doença e não prevê quando alguém poderá adoecer."
-        )
         activity = "com" if v["PhysActivity"] else "sem"
         pressure = "com" if v["HighBP"] else "sem"
         st.write(
@@ -220,6 +322,14 @@ if navigation == "Análise":
         base_label = f"{r['base']:.1%}".replace(".", ",")
         c1.metric("Proporção positiva no grupo histórico", score_label)
         c2.metric("Referência histórica do modelo", base_label)
+        st.markdown(
+            f'<div class="prediction"><span>Classificação experimental · {label}</span>'
+            f'<p>O escore do grupo ({score_label}) {comparison} o limiar técnico de '
+            f'<strong>{cutoff}</strong>. Classe 1 significa o rótulo combinado de pré-diabetes ou '
+            'diabetes nos registros históricos; classe 0 significa ausência desse rótulo. '
+            '<strong>Não é diagnóstico nem previsão de doença futura.</strong></p></div>',
+            unsafe_allow_html=True,
+        )
         st.write(
             f"A árvore reuniu este perfil com registros históricos que seguiram as mesmas regras. "
             f"Nesse grupo, **{score_label}** dos registros de treino tinham o rótulo positivo "
@@ -355,9 +465,11 @@ if navigation == "Análise":
         )
 if navigation == "Evidências":
     st.title("Fontes documentais")
-    st.write(
-        "Três trechos curtos de uma fonte institucional. A ampliação da base e a revisão clínica estão pendentes."
-    )
+    st.write("As fontes clínicas abaixo embasam a avaliação laboratorial. A documentação histórica do modelo experimental aparece em seguida.")
+    for sid, src in SOURCES.items():
+        st.markdown(f'**{sid}** · [{src["title"]}]({src["url"]})')
+    st.subheader("Documentos recuperados pelo modelo experimental")
+    st.caption("Três trechos de uma página institucional, sem validação do escore clínico; curadoria adicional pendente.")
     for d in evidence():
         st.markdown(f"**{d['id']} — {d['title']}**")
         st.write(d["summary"])
@@ -370,8 +482,9 @@ if navigation == "Evidências":
     st.dataframe(pd.DataFrame(rules()), hide_index=True, width="stretch")
 if navigation == "Método":
     m = metrics
-    st.title("Como o modelo foi avaliado")
-    st.write("Esta página resume o desempenho em registros históricos. Para ver a previsão do perfil selecionado, abra Análise.")
+    st.title("Método e limites")
+    st.warning("O módulo Exames usa critérios públicos explícitos, não um modelo probabilístico. O modelo abaixo usa dados históricos de autorrelato e não pode fornecer probabilidade diagnóstica baseada em exames.")
+    st.write("Esta página resume o desempenho do modelo de demonstração (quatro variáveis não laboratoriais). Para o módulo principal, abra Exames.")
     st.button("Ver resultado do caso", on_click=choose_page, args=("Análise",))
     st.subheader("Acertos entre as previsões positivas")
     report = m["classification_report"]

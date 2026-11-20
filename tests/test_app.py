@@ -14,6 +14,8 @@ class AppTests(unittest.TestCase):
                     str(Path(__file__).parents[1] / "app.py"), default_timeout=50
                 ).run()
                 self.assertEqual(len(a.exception), 0)
+                self.assertEqual(a.session_state["navigation"], "Exames")
+                a.button(key="nav_Análise").click().run()
                 self.assertEqual(a.session_state["result"]["case"], "Caso B — fictício")
                 score = a.session_state["result"]["score"]
                 a.button(key="theme_dark").click().run()

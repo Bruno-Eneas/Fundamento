@@ -1,16 +1,16 @@
-FUNDAMENTO — PROJETO COM HISTÓRICO GIT
+FUNDAMENTO — DEMONSTRAÇÃO LABORATORIAL E MODELO HISTÓRICO
 
-1. Extraia o ZIP inteiro para uma pasta nova. Não rode dentro do ZIP.
-2. Abra Iniciar_Windows.bat (Python 3.12 necessário).
-3. Para geração: instale Ollama, baixe qwen2.5:3b e abra Iniciar_Com_Ollama.bat.
-4. Use a Local URL do terminal, não uma aba antiga em outra porta.
-5. Testar_Windows.bat executa a suíte depois de instalar o ambiente.
-6. Leia README.md, docs/Enunciado.pdf e docs/Matriz_requisitos.md.
+1. Extraia o ZIP inteiro para uma nova pasta. Não rode dentro do ZIP.
+2. Instale Python 3.12 e abra Iniciar_Windows.bat.
+3. Use a Local URL exibida no terminal.
+4. Na aba "Exames laboratoriais", carregue um exemplo fictício e clique "Analisar exames".
+5. Confira a faixa, justificativa, necessidade de confirmação e os links SBD/ADA/NIDDK.
+6. Não use exames reais de pacientes identificáveis e não leia a saída como diagnóstico.
+7. A aba "Modelo experimental" mantém a antiga árvore SHAP, sem dados de sangue.
+8. Testar_Windows.bat executa a suíte completa após instalar dependências.
+9. Veja docs/Entrega/ para relatório, plano de disseminação e slides, todos para conferência do grupo.
+10. Pendências: publicação pública, testes completos Windows, inspeção visual e revisão clínica.
 
-O pacote inclui código, testes, modelo demonstrativo e histórico .git.
-Não inclui .venv, modelo Ollama, CSV original, credenciais ou banco pessoal.
-O arquivo Fundamento.bundle permite restaurar o histórico com Git instalado.
-O prompt da pasta docs serve para uma conversa comum e não exige Work Mode.
-
-Preserve sua instalação antiga como backup. Não substitua apenas app.py:
-esta versão usa src/session.py, src/charts.py e assets/theme.css novos.
+O ZIP inclui .git e Fundamento.bundle. O modelo antigo .joblib está no pacote.
+Ollama é opcional e somente para geração no módulo experimental.
+Não se executa train.py para testar. O projeto não calcula probabilidade individual validada.
