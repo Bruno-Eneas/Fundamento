@@ -1,30 +1,30 @@
-# Próximas tarefas
+# Plano de continuidade e aceitação
 
-## Daniel — executar a primeira versão
-1. Extrair o ZIP.
-2. Instalar Python 3.12 caso ainda não tenha.
-3. Executar Iniciar_Windows.bat.
-4. Abrir Caso A e Caso B, comparar contribuições e abrir as fontes.
-5. Salvar avaliação, reiniciar o app e manter o arquivo runtime/feedback.sqlite.
-6. Informar no chat se abriu ou enviar o erro completo.
+## Resolvido nesta revisão
+- Rascunho antigo após falha de geração: limpo antes da tentativa, com testes de sucesso->erro e falha parcial.
+- Feedback previamente selecionado: agora exige escolha explícita.
+- Gráfico: campos sem pontos, esquema validado, tabela de valores mantida.
+- Código Python formatado, CSS separado e testes ampliados.
 
-## Colega B — evidência e expertise
-1. Conciliar o rótulo Diabetes_binary com a fonte original de Alex Teboul, incluindo definição das classes e ano do levantamento.
-2. Conferir licença de uso/redistribuição na fonte original. UCI remete ao Kaggle; não atribuir CC0 apenas com base em espelhos.
-3. Ampliar a base documental além dos três trechos NIDDK. Priorizar diretrizes pertinentes, identificar seção, data e origem.
-4. Mapear somente as entradas usadas: Age, BMI, PhysActivity, HighBP. Não adicionar alegações específicas de paciente à fonte.
-5. Pedir a referência de XAG e a possibilidade de revisão por profissional habilitado ao professor.
-6. Propor critérios com fonte e status; regras não revisadas não podem ser atribuídas a médicos.
+## Prioridade 1: conferir a entrega real
+- Obter enunciado original, prazo completo e nomes dos integrantes. Há apenas referência ao dia 22; não assumir exigências de páginas/duração anotadas em versões antigas.
+- Obter as imagens aprovadas chamadas opção 1 escura e opção 3 clara; não estão no pacote. Conferir layout real nos dois temas, desktop e janela estreita.
+- Executar em Windows limpo; abrir os três casos, fontes, gráfico, JSON e feedback após reinício.
+- Repetir Ollama real, revisar semanticamente cada afirmação e testar serviço desligado. Conector configurado não significa conectado.
 
-## Colega C — documentos e testes
-1. Estruturar os 22 tópicos do relatório e os itens do plano de disseminação.
-2. Usar assets/metrics.json para números reais, com limitações e divisão dos dados.
-3. Registrar busca funcional e geração já observada no Windows de Daniel; repetição no pacote atual e expertise clínica continuam pendentes.
-4. Não afirmar publicação, integração com Unimed, validação médica, alta acurácia ou ausência de alucinação.
-5. Registrar a colaboração com IA conforme docs/Uso_de_IA.md.
+## Prioridade 2: rigor acadêmico
+- Conciliar rótulo, ano e licença com fonte original; documentar redução a quatro entradas e limitações de generalização.
+- Ampliar fontes se necessário, sem inventar apoio para hipertensão. Obter revisão especializada para alegações de expertise. Confirmar com professor qual referência de XAG deve ser usada.
+- Apresentar métricas completas, inclusive baixa precisão positiva no limiar escolhido. Não confundir acurácia, AUC e calibração.
+- Criar matriz: requisito do professor / arquivo ou seção / evidência / responsável / status.
 
-## Próximo ciclo técnico
-Resolver proveniência e rótulo; testar geração com um serviço disponível; ampliar fontes; validar os rascunhos semanticamente; conectar banco persistente remoto; publicar; testar em ambiente público e navegador; coletar evidências reais; só então fechar relatório e apresentação.
+## Prioridade 3: entrega e apresentação
+- Se exigido, hospedar com geração acessível e banco persistente, testar link em outra máquina e não expor segredos.
+- Preparar relatório acadêmico, divulgação e slides conforme enunciado; este pacote traz relatório técnico de continuidade, não esses materiais finais.
+- Ensaiar: Caso B -> contribuições -> fonte e ausência de fonte -> rascunho -> Caso A -> feedback -> limites.
 
-## Revisão documental
-Consultar os critérios de aceitação e a possível retenção de generated_draft após falha em Prompt_continuidade.txt. Confirmar enunciado antes de adotar número de tópicos, páginas ou duração. As referências visuais aprovadas precisam acompanhar a próxima revisão visual.
+## Divisão de três pessoas
+A: código, execução, testes e eventual hospedagem. B: fontes, rótulo, licenças e contato técnico com professor. C: documentação, slides e integração de evidências. Um integrante integra as alterações para não divergir versões.
+
+## Critério para declarar pronto
+Requisitos confirmados e atendidos; teste real no computador da apresentação; fontes rastreáveis; nenhuma alegação além das evidências; artefatos e apresentação coerentes; histórico íntegro. Validação clínica e parceria institucional não podem ser declaradas sem aprovação correspondente.
