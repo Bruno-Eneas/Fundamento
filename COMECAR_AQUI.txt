@@ -1,0 +1,22 @@
+FUNDAMENTO - ENTREGA DE CONTINUIDADE
+
+1. Extraia esta pasta inteira. Nao execute dentro do ZIP.
+2. Instale Python 3.12 com launcher py e PATH.
+3. Para usar a geracao, instale Ollama e execute no Prompt de Comando:
+   ollama pull qwen2.5:3b
+4. Abra Iniciar_Com_Ollama.bat. O iniciador cria o ambiente e instala os pacotes.
+   Para usar so modelo/fontes, use Iniciar_Windows.bat.
+5. Use a Local URL informada no terminal. Mantenha esse terminal aberto.
+
+O Caso B abre calculado automaticamente. Todos os perfis sao ficticios.
+O grafico fica em "Ver grafico de contribuicoes SHAP".
+Claro/Escuro sao botoes no topo; a navegacao fica na lateral.
+O modelo de linguagem so gera texto ao clicar no botao correspondente.
+
+Este pacote NAO inclui o modelo Ollama, .venv, banco de avaliacoes de Daniel,
+chaves de acesso ou dados de pacientes. Crie o ambiente em cada computador.
+Nao ha publicacao online nem validacao clinica concluida.
+
+Se voce ja tem o projeto rodando, pode substituir apenas app.py apos um backup.
+As avaliacoes locais ficam em runtime; preserve sua pasta antiga.
+Leia docs/Relatorio_continuidade.pdf e docs/Prompt_continuidade.txt.

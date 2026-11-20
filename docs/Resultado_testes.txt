@@ -1,0 +1,12 @@
+test_cases_themes_navigation_and_feedback (test_app.AppTests.test_cases_themes_navigation_and_feedback) ... 2026-11-16 23:44:07.494 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+ok
+test_false_citation_blocked (test_core.CoreTests.test_false_citation_blocked) ... ok
+test_feedback_survives_connection (test_core.CoreTests.test_feedback_survives_connection) ... ok
+test_missing_and_invalid (test_core.CoreTests.test_missing_and_invalid) ... ok
+test_retrieval_and_abstention (test_core.CoreTests.test_retrieval_and_abstention) ... ok
+test_shap_reconstruction (test_core.CoreTests.test_shap_reconstruction) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.320s
+
+OK

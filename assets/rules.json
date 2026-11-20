@@ -1,0 +1,30 @@
+[
+  {
+    "id": "R01",
+    "condition": "Entrada necessária ausente ou inválida",
+    "action": "Bloquear cálculo e indicar campo",
+    "origin": "Requisito de engenharia do protótipo",
+    "review": "Implementada; não é regra clínica validada"
+  },
+  {
+    "id": "R02",
+    "condition": "Nenhum trecho elegível para o fator",
+    "action": "Mostrar ausência de evidência; não chamar gerador",
+    "origin": "RF07 da proposta",
+    "review": "Implementada; teste automatizado"
+  },
+  {
+    "id": "R03",
+    "condition": "Citação fora do contexto recuperado",
+    "action": "Bloquear resposta gerada",
+    "origin": "Requisito de rastreabilidade",
+    "review": "Implementada; não comprova fidelidade semântica"
+  },
+  {
+    "id": "R04",
+    "condition": "Toda exibição do escore",
+    "action": "Identificar caráter demonstrativo e proibir conclusão diagnóstica",
+    "origin": "Limites da base e do modelo",
+    "review": "Implementada na interface"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Risk Factors for Type 2 Diabetes",
+    "organization": "NIDDK / NIH",
+    "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/risk-factors-type-2-diabetes",
+    "section": "What are the risk factors for type 2 diabetes?",
+    "reviewed": "2022-07",
+    "accessed": "2026-11-16",
+    "active": true,
+    "status": "Fonte institucional; seleção e síntese do protótipo ainda sem revisão clínica externa.",
+    "id": "E01",
+    "features": [
+      "Age"
+    ],
+    "summary": "Idade: o risco de diabetes tipo 2 aumenta com o envelhecimento. Esta associação geral não confirma diagnóstico nem valida o escore do modelo.",
+    "excerpt": "the risk increases as a person gets older"
+  },
+  {
+    "title": "Risk Factors for Type 2 Diabetes",
+    "organization": "NIDDK / NIH",
+    "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/risk-factors-type-2-diabetes",
+    "section": "What are the risk factors for type 2 diabetes?",
+    "reviewed": "2022-07",
+    "accessed": "2026-11-16",
+    "active": true,
+    "status": "Fonte institucional; seleção e síntese do protótipo ainda sem revisão clínica externa.",
+    "id": "E02",
+    "features": [
+      "BMI"
+    ],
+    "summary": "IMC: excesso de peso e obesidade estão associados a maior risco de diabetes tipo 2. O IMC isolado não permite diagnóstico.",
+    "excerpt": "are overweight or have obesity"
+  },
+  {
+    "title": "Risk Factors for Type 2 Diabetes",
+    "organization": "NIDDK / NIH",
+    "url": "https://www.niddk.nih.gov/health-information/diabetes/overview/risk-factors-type-2-diabetes",
+    "section": "What are the risk factors for type 2 diabetes?",
+    "reviewed": "2022-07",
+    "accessed": "2026-11-16",
+    "active": true,
+    "status": "Fonte institucional; seleção e síntese do protótipo ainda sem revisão clínica externa.",
+    "id": "E03",
+    "features": [
+      "PhysActivity"
+    ],
+    "summary": "Atividade física: a inatividade aparece entre os fatores associados ao diabetes tipo 2. Esta síntese não quantifica o efeito individual.",
+    "excerpt": "are not physically active"
+  }
+]
