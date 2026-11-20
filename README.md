@@ -62,3 +62,9 @@ Esta aplicação não possui autenticação, adequação completa à LGPD, siste
 ## Git
 
 A pasta `.git` e o `Fundamento.bundle` preservam o histórico real disponível. Não alterar datas/autoria para simular trabalho de integrantes. Consulte `docs/Git.md`.
+
+## Atualização do protótipo — pacote 6 (20/11/2026)
+
+Na seção Exames laboratoriais, a página apresenta um cartão de **resultado resumido**, uma lista compacta dos valores que contribuíram para a interpretação, sugestões **condicionais** de exames/confirmações e fontes clicáveis. Os detalhes completos ficam em uma área expansível. A nova saída em `src/clinical.py` traz `suggested_exams` e `follow_up_message`. Há oito regressões novas para esses casos.
+
+**Ainda não implementados:** cadastro de pacientes fictícios persistentes; histórico de exames por paciente; chat RAG sobre esse histórico; probabilidade clínica individual validada; publicação pública. Use `docs/Prompt_terminar_projeto.txt` com o ZIP para continuar. Prévia de vídeo eventualmente anexada é conceitual, não demonstração funcional.

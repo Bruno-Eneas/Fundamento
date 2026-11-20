@@ -43,3 +43,41 @@ class ClinicalTests(unittest.TestCase):
         self.assertIn('source_ids',r.to_dict())
 
 if __name__=='__main__': unittest.main()
+
+class SuggestionsTests(unittest.TestCase):
+    def test_missing_labs_suggests_entry(self):
+        r = evaluate_labs({})
+        self.assertEqual(r.status, "dados_insuficientes")
+        self.assertTrue(any("HbA1c" in s["exam"] for s in r.suggested_exams))
+
+    def test_fasting_high_suggests_confirmation(self):
+        r = evaluate_labs({"glicemia_jejum": 132})
+        self.assertEqual(r.status, "confirmacao_pendente")
+        self.assertIn("HbA1c", r.suggested_exams[0]["exam"])
+
+    def test_hba1c_high_suggests_confirmation(self):
+        r = evaluate_labs({"hba1c": 6.8})
+        self.assertIn("Glicemia", r.suggested_exams[0]["exam"])
+
+    def test_compatible_valid_labs_do_not_demand_extra_exam(self):
+        r = evaluate_labs({"hba1c": 6.8, "glicemia_jejum": 132})
+        self.assertEqual(r.suggested_exams, [])
+        self.assertIn("tipo", r.follow_up_message)
+
+    def test_conflicting_labs_suggest_repeating_positive(self):
+        r = evaluate_labs({"hba1c": 5.5, "glicemia_jejum": 132})
+        self.assertEqual(r.status, "inconclusivo")
+        self.assertIn("jejum", r.suggested_exams[0]["exam"])
+
+    def test_no_automatic_test_when_below_intermediate(self):
+        r = evaluate_labs({"hba1c": 5.3, "glicemia_jejum": 92})
+        self.assertEqual(r.suggested_exams, [])
+
+    def test_out_of_scope_does_not_suggest_a_test(self):
+        r = evaluate_labs({"hba1c": 9.2}, pregnant=True)
+        self.assertEqual(r.suggested_exams, [])
+
+    def test_suggestions_export_in_json(self):
+        r = evaluate_labs({"glicemia_jejum": 132})
+        self.assertIn("suggested_exams", r.to_dict())
+        self.assertIsNone(r.probability)

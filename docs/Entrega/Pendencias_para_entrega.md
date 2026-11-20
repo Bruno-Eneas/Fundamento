@@ -20,3 +20,9 @@ O professor exige app acessível publicamente, relatório técnico (15–25 p.),
 - Parceria com Unimed, com outros profissionais ou órgãos regulatórios.
 - Segurança de prontuários, conformidade completa com LGPD e operação clínica.
 - Teste Streamlit no Windows, publicação pública e funcionamento pleno com Ollama remoto.
+
+## Atualização do pacote 6 — resultado resumido e repasse
+
+A seção Exames agora tem apresentação resumida com justificativa visível, sugestões condicionais (quando há necessidade de confirmação), fontes e detalhes recolhidos. A lógica foi testada automaticamente; a experiência no navegador com Streamlit permanece por verificar no Windows. Ver `docs/Guia_repasse.md` e `docs/Prompt_terminar_projeto.txt` para continuar.
+
+O arquivo `Video_Conceitual.mp4` é um storyboard de 30 segundos, com exemplos fictícios e telas ilustrativas. NÃO constitui evidência de que cadastro, histórico ou chat integrado estejam funcionando.

@@ -1,4 +1,4 @@
-import json, os, base64
+import json, os, base64, html
 from pathlib import Path
 import pandas as pd
 import streamlit as st
@@ -255,23 +255,63 @@ if navigation == "Exames":
             st.error(str(e))
     if st.session_state.get('lab_result'):
         r=st.session_state['lab_result']
-        st.markdown('<div class="f-title">02 · Resultado da avaliação</div>', unsafe_allow_html=True)
-        st.subheader(r['headline'])
-        st.write(r['explanation'])
-        st.info('**Probabilidade clínica individual: não disponível.** '+r['probability_reason'])
+        st.markdown('<div class="f-title">02 · Resultado em resumo</div>', unsafe_allow_html=True)
+        status_label = {
+            'criterios_concordantes': 'Dois critérios laboratoriais concordantes',
+            'confirmacao_pendente': 'Confirmação pendente',
+            'inconclusivo': 'Resultados discordantes',
+            'faixa_intermediaria': 'Faixa intermediária',
+            'sem_criterio_nos_dados': 'Sem alteração nos exames avaliados',
+            'dados_insuficientes': 'Dados insuficientes',
+            'fora_escopo': 'Fora do escopo automático',
+            'necessita_avaliacao': 'Avaliação clínica necessária',
+        }.get(r['status'], 'Avaliação laboratorial')
+        st.markdown(
+            '<section class="f-lab-summary">'
+            '<div class="f-lab-eyebrow">RESUMO DA ANÁLISE · EXEMPLO EDUCACIONAL</div>'
+            f'<div class="f-lab-status">{html.escape(status_label)}</div>'
+            f'<h2>{html.escape(r["headline"])}</h2>'
+            f'<p>{html.escape(r["explanation"])}</p>'
+            '<div class="f-lab-probability"><b>Probabilidade individual de diabetes tipo 2: '
+            'Não disponível.</b> Não existe modelo validado no Fundamento para informar esse percentual.</div>'
+            '</section>', unsafe_allow_html=True,
+        )
         if r['measurements']:
-            st.dataframe(pd.DataFrame(r['measurements']),hide_index=True,width='stretch')
-        for n in r['notes']:
-            st.warning(n)
-        if r['next_steps']:
-            st.markdown('**O que conferir a seguir**')
+            st.markdown('**Por que o sistema chegou a este resultado?**')
+            prominent = [x for x in r['measurements']
+                         if 'diabetes' in x['interpretação'] or 'intermediária' in x['interpretação']]
+            if not prominent:
+                prominent = r['measurements']
+            cards=[]
+            for item in prominent[:3]:
+                value = f"{item['valor']:g}".replace('.', ',')
+                cards.append(
+                    '<div class="f-lab-factor"><div><strong>' + html.escape(item['exame']) +
+                    '</strong><small>' + html.escape(item['interpretação']) +
+                    '</small></div><b>' + html.escape(value + ' ' + item['unidade']) + '</b></div>'
+                )
+            st.markdown('<div class="f-lab-factors">'+''.join(cards)+'</div>',unsafe_allow_html=True)
+        st.markdown('**O que ainda falta conferir?**')
+        st.caption(r.get('follow_up_message', 'A decisão sobre exames adicionais cabe ao médico.'))
+        for suggestion in r.get('suggested_exams', []):
+            st.markdown(
+                '<div class="f-lab-recommend"><b>' + html.escape(suggestion['exam']) + '</b>'
+                '<span>' + html.escape(suggestion['reason']) + '</span></div>',
+                unsafe_allow_html=True,
+            )
+        with st.expander('Ver exames completos e orientações adicionais'):
+            if r['measurements']:
+                st.dataframe(pd.DataFrame(r['measurements']),hide_index=True,width='stretch')
+            for note in r['notes']:
+                st.warning(note)
             for step in r['next_steps']:
-                st.write('• '+step)
-        st.markdown('<div class="f-title">03 · De onde vem essa interpretação?</div>', unsafe_allow_html=True)
+                st.write('• ' + step)
+        st.markdown('<div class="f-title">03 · Fontes e critérios</div>',unsafe_allow_html=True)
+        st.caption('Fontes para conferir a regra aplicada, não validação clínica do Fundamento.')
         for sid in r['source_ids']:
             src=SOURCES[sid]
-            st.markdown(f'**{sid}** · [{src["title"]}]({src["url"]})')
-        st.caption('A aplicação usa regras determinísticas rastreáveis. Nenhuma síntese clínica desta tela é gerada por Ollama.')
+            st.markdown(f'[{src["title"]}]({src["url"]})')
+        st.caption('Regras determinísticas e transparentes. Nenhuma síntese clínica desta tela é gerada pelo Ollama.')
         st.download_button('Baixar resultado demonstrativo em JSON',
             json.dumps(r,ensure_ascii=False,indent=2),file_name='Fundamento_exames.json',mime='application/json')
     else:

@@ -14,3 +14,8 @@ FUNDAMENTO — DEMONSTRAÇÃO LABORATORIAL E MODELO HISTÓRICO
 O ZIP inclui .git e Fundamento.bundle. O modelo antigo .joblib está no pacote.
 Ollama é opcional e somente para geração no módulo experimental.
 Não se executa train.py para testar. O projeto não calcula probabilidade individual validada.
+
+PACOTE 6: consulte docs/Guia_repasse.md e docs/Prompt_terminar_projeto.txt.
+A tela de exames agora mostra o resultado resumido e sugestões condicionais.
+Cadastro de pacientes, histórico longitudinal e chat para o perfil NÃO estão prontos.
+Não há probabilidade individual de diabetes tipo 2 validada.

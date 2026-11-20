@@ -3,7 +3,7 @@
 Não diagnostica nem estima probabilidade individual; exige revisão clínica.
 Referências: SBD 2026, ADA 2026 e NIDDK (links em SOURCES).
 """
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 import math
 from typing import Optional
 
@@ -36,6 +36,8 @@ class ClinicalResult:
         "e validado para calcular probabilidade individual a partir destes exames."
     )
     research_only: bool = True
+    suggested_exams: list[dict] = field(default_factory=list)
+    follow_up_message: str = "Sugestões educativas para discussão com o médico, não pedidos obrigatórios."
 
     def to_dict(self):
         return asdict(self)
@@ -56,6 +58,50 @@ def _num(name, value):
     if not bounds[0] <= v <= bounds[1]:
         raise ValueError(f"{name}: valor fora do intervalo operacional. Confira unidade e digitação.")
     return v
+
+
+def suggest_labs(status: str, measurements: list[dict]) -> tuple[list[dict], str]:
+    """Sugestões condicionais, não prescrições, derivadas da saída existente.
+
+    Não cria uma lista fixa obrigatória e não infere diagnóstico de tipo 2.
+    """
+    positives = [r for r in measurements if "na faixa de diabetes" in r["interpretação"]
+                 or "glicemia casual ≥200 com sintomas" in r["interpretação"]]
+    labels = [r["exame"] for r in positives]
+    if status in ("fora_escopo", "necessita_avaliacao"):
+        return [], "Revisão clínica prioritária. A escolha de exames depende do contexto médico."
+    if status == "criterios_concordantes":
+        return [], ("Não foi identificado exame adicional automaticamente obrigatório para "
+                    "confirmar dois critérios laboratoriais válidos e concordantes. "
+                    "A classificação do tipo e a avaliação clínica continuam necessárias.")
+    if status == "inconclusivo":
+        label = labels[0] if labels else "Exame com resultado alterado"
+        return [{"exam": label, "reason": "Discutir repetição do teste na faixa diagnóstica, "
+                         "com verificação de método e condições de coleta.", "level": "Confirmação a considerar"}],                "Exames discordantes requerem esclarecimento; um resultado isolado não define o tipo de diabetes."
+    if status == "confirmacao_pendente":
+        if any("jejum" in l.lower() for l in labels):
+            exam = "HbA1c ou repetição da glicemia de jejum"
+        elif any("hba1c" in l.lower() for l in labels):
+            exam = "Glicemia de jejum ou repetição da HbA1c"
+        else:
+            exam = "Teste laboratorial confirmatório apropriado"
+        return [{"exam": exam,
+                 "reason": "Um único critério alterado geralmente requer confirmação, "
+                           "salvo exceções clínicas previstas nas diretrizes.",
+                 "level": "A considerar"}],                "A confirmação deve ser definida pelo profissional responsável."
+    if status == "dados_insuficientes":
+        return [{"exam": "Glicemia plasmática de jejum e/ou HbA1c",
+                 "reason": "Informar pelo menos um resultado válido, com unidade, data e condições de coleta.",
+                 "level": "Informação necessária"}],                "Sem exame interpretável, o sistema se abstém de concluir."
+    if status == "faixa_intermediaria":
+        return [{"exam": "Complementação ou repetição conforme avaliação clínica",
+                 "reason": "O médico pode considerar glicemia, HbA1c ou TTGO conforme o caso; "
+                           "não há obrigação automática de realizar todos os testes.",
+                 "level": "Opcional"}],                "Acompanhamento individualizado; resultado intermediário não é diagnóstico de diabetes."
+    if status == "sem_criterio_nos_dados":
+        return [], ("Nenhum exame adicional foi indicado automaticamente pelos valores enviados. "
+                    "Sintomas ou risco elevado podem justificar avaliação complementar.")
+    return [], "A necessidade de outros exames depende da avaliação clínica."
 
 
 def evaluate_labs(
@@ -80,11 +126,13 @@ def evaluate_labs(
     rows, notes, next_steps = [], [], []
 
     def outcome(status, headline, explanation, next_steps_override=None):
+        suggestions, message = suggest_labs(status, rows)
         return ClinicalResult(
             status=status, headline=headline, explanation=explanation,
             measurements=rows, notes=notes,
             next_steps=next_steps_override if next_steps_override is not None else next_steps,
             source_ids=["SBD-2026", "ADA-2026", "NIDDK"],
+            suggested_exams=suggestions, follow_up_message=message,
         )
 
     if known_diabetes:
