@@ -122,6 +122,8 @@ def rules():
 def validate_generated(payload, retrieved):
     if not isinstance(payload, dict) or not isinstance(payload.get("claims"), list):
         raise ValueError("Resposta sem estrutura válida.")
+    if len(payload["claims"]) > 6:
+        raise ValueError("Número excessivo de afirmações geradas.")
     allowed = {x["id"]: x for x in retrieved}
     result = []
     for claim in payload["claims"]:
@@ -134,6 +136,8 @@ def validate_generated(payload, retrieved):
         if (
             not isinstance(ids, list)
             or not ids
+            or len(ids) > 3
+            or len(ids) != len(set(map(str, ids)))
             or any(not isinstance(i, str) or i not in allowed for i in ids)
         ):
             raise ValueError(

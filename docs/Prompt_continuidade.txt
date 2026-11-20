@@ -1,3 +1,5 @@
+NOTA DE ATUALIZACAO: Enunciado original recebido em 20/11/2026. Para requisitos, consulte docs/Enunciado.pdf, docs/Matriz_requisitos.md e docs/Auditoria_20_11.md. As referencias a enunciado ausente abaixo sao historicas.
+
 Você vai revisar um projeto acadêmico existente chamado Fundamento. Esta é uma conversa comum do ChatGPT, fora do Work Mode. Não presuma acesso ao computador, arquivos de conversas anteriores, Library, GitHub, localhost, terminal ou navegador. Use os anexos desta conversa. Se conseguir extrair o ZIP, leia o projeto. Se não conseguir, peça Codigo_para_revisao.txt e os arquivos específicos necessários. Não diga que executou testes apenas por ler o log.
 
 ANEXOS

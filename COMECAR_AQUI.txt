@@ -5,7 +5,7 @@ FUNDAMENTO — PROJETO COM HISTÓRICO GIT
 3. Para geração: instale Ollama, baixe qwen2.5:3b e abra Iniciar_Com_Ollama.bat.
 4. Use a Local URL do terminal, não uma aba antiga em outra porta.
 5. Testar_Windows.bat executa a suíte depois de instalar o ambiente.
-6. Leia README.md e docs/Relatorio_continuidade.pdf.
+6. Leia README.md, docs/Enunciado.pdf e docs/Matriz_requisitos.md.
 
 O pacote inclui código, testes, modelo demonstrativo e histórico .git.
 Não inclui .venv, modelo Ollama, CSV original, credenciais ou banco pessoal.

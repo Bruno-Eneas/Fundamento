@@ -203,8 +203,11 @@ if navigation == "Análise":
             f'de {cutoff} usado na avaliação do modelo.</p></section>',
             unsafe_allow_html=True,
         )
-        st.caption("O modelo tenta reproduzir o rótulo histórico de diabetes da base. "
-                   "Esta classificação não confirma nem exclui doença e não estima risco futuro.")
+        st.caption(
+            "Como interpretar: classe 1 = registro com rótulo combinado de pré-diabetes ou diabetes; "
+            "classe 0 = registro sem esse rótulo, na base histórica. O modelo não confirma nem "
+            "exclui doença e não prevê quando alguém poderá adoecer."
+        )
         activity = "com" if v["PhysActivity"] else "sem"
         pressure = "com" if v["HighBP"] else "sem"
         st.write(
@@ -215,8 +218,8 @@ if navigation == "Análise":
         c1, c2 = st.columns(2)
         score_label = f"{r['score']:.1%}".replace(".", ",")
         base_label = f"{r['base']:.1%}".replace(".", ",")
-        c1.metric("Registros positivos no grupo deste perfil", score_label)
-        c2.metric("Registros positivos no treino completo", base_label)
+        c1.metric("Proporção positiva no grupo histórico", score_label)
+        c2.metric("Referência histórica do modelo", base_label)
         st.write(
             f"A árvore reuniu este perfil com registros históricos que seguiram as mesmas regras. "
             f"Nesse grupo, **{score_label}** dos registros de treino tinham o rótulo positivo "

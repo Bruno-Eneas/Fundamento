@@ -57,8 +57,10 @@ Sem `DATABASE_URL`, avaliações ficam em `runtime/feedback.sqlite`; `FUNDAMENTO
 
 ## Histórico Git
 
-O ZIP inclui `.git` e o arquivo Fundamento.bundle preserva o mesmo histórico. Os commits foram criados em 20/11/2026: importação do protótipo existente e mudanças reais desta revisão. Não representam dias passados de desenvolvimento. Autor técnico: Assistente do projeto; não há atribuição fictícia aos integrantes. Veja docs/Git.md.
+O ZIP inclui `.git` e `Fundamento.bundle`, que preserva o mesmo histórico. Os commits foram criados em 20/11/2026: importação do protótipo existente e mudanças reais desta revisão. Não representam dias passados de desenvolvimento. Autor técnico: Assistente do projeto; não há atribuição fictícia aos integrantes. Veja docs/Git.md.
 
 ## Antes da entrega acadêmica
 
-Faltam enunciado original e imagens de referência aprovadas para fechar conformidade acadêmica e visual. Relatório de continuidade não é relatório acadêmico final. Conferir docs/Proximas_tarefas.md. Não afirmar publicação, parceria operacional, validação médica ou ausência de alucinações.
+O **enunciado original** foi recebido em 20/11/2026 e está em `docs/Enunciado.pdf`. A matriz completa em `docs/Matriz_requisitos.md` confirma **publicação pública obrigatória**, relatório técnico de **15–25 páginas**, plano de disseminação de **5–10 páginas**, apresentação de **15 minutos** e arguição de **20 minutos**. Esses materiais acadêmicos ainda precisam ser finalizados. O dia/horário final da apresentação deve ser confirmado com o professor.
+
+A auditoria independente está em `docs/Auditoria_20_11.md`; as imagens de referência aprovadas ainda não estão disponíveis. Não afirmar publicação, parceria operacional, validação médica ou ausência de alucinações.

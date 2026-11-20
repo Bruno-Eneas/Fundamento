@@ -39,6 +39,19 @@ class CoreTests(unittest.TestCase):
             )
         self.assertEqual(validate_generated({"claims": []}, []), [])
 
+    def test_generation_limits_reject_unbounded_or_repeated_citations(self):
+        docs = retrieve("BMI")
+        with self.assertRaises(ValueError):
+            validate_generated(
+                {"claims": [{"text": "a", "source_ids": [docs[0]["id"]]}] * 7},
+                docs,
+            )
+        with self.assertRaises(ValueError):
+            validate_generated(
+                {"claims": [{"text": "a", "source_ids": [docs[0]["id"]] * 2}]},
+                docs,
+            )
+
     def test_feedback_survives_connection(self):
         with tempfile.TemporaryDirectory() as tmp:
             old = os.environ.pop("DATABASE_URL", None)

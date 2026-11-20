@@ -14,3 +14,7 @@ O teste de interface foi ajustado para submeter a escolha no mesmo ciclo do form
 Não concluídos: revisão visual integral em navegador, Ollama ao vivo nesta máquina, PostgreSQL, execução Windows e hospedagem pública. Chromium local não iniciou por restrição de socket do ambiente. Testes de Streamlit não provam contraste, responsividade ou correspondência ao mockup. A geração real foi observada anteriormente nas capturas de Daniel, não nesta suíte.
 
 Não houve consulta nova de fontes clínicas ou validação semântica/externa. A automação GitHub Actions está preparada; só executará após enviar a um repositório compatível. Não foi executada no GitHub nesta entrega.
+
+## Auditoria independente posterior (20/11/2026)
+
+Foi recebido o enunciado oficial (`docs/Enunciado.pdf`). As exigências e pendências estão em `docs/Matriz_requisitos.md` e `docs/Auditoria_20_11.md`. A suíte de 17 testes na sessão de auditoria teve 15 passes e 2 falhas de importação por ausência de Streamlit/Altair, não por asserções reprovadas. Ver `docs/Execucao_auditoria_local.txt`. Isso não substitui execução no Windows com Python 3.12 e dependências instaladas.

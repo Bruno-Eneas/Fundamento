@@ -1,0 +1,71 @@
+FUNDAMENTO - EXECUCAO INDEPENDENTE DE 20/11/2026
+Ambiente: Linux, Python 3.13.5, scikit-learn 1.8.0
+
+MODELO: foi carregado localmente, sem treinar ou alterar o .joblib.
+A: 0.022287375456555767
+B: 0.3928264973399691
+C: 0.2586927879933551
+Referencia SHAP: 0.13423179020448645
+Soma SHAP conferida em todos os tres casos.
+
+SUITE:
+Comando: python -m unittest discover -s tests -v
+Resultado nesta maquina: Ran 17 tests, FAILED (errors=2).
+15 testes passaram; duas importacoes de modulos de teste falharam porque nao estao instalados streamlit e altair.
+Isto NAO equivale a falha confirmada nos testes do aplicativo.
+Nao foi possivel instalar as duas bibliotecas porque o ambiente estava sem acesso ao indice de pacotes.
+Nao foram testados navegador real, Windows, banco PostgreSQL, Ollama real ou deploy.
+
+Ver resultado completo em / consultar o log registrado durante a auditoria.
+test_app (unittest.loader._FailedTest.test_app) ... ERROR
+test_charts (unittest.loader._FailedTest.test_charts) ... ERROR
+test_false_citation_blocked (test_core.CoreTests.test_false_citation_blocked) ... ok
+test_feedback_survives_connection (test_core.CoreTests.test_feedback_survives_connection) ... ok
+test_generation_limits_reject_unbounded_or_repeated_citations (test_core.CoreTests.test_generation_limits_reject_unbounded_or_repeated_citations) ... ok
+test_missing_and_invalid (test_core.CoreTests.test_missing_and_invalid) ... ok
+test_retrieval_and_abstention (test_core.CoreTests.test_retrieval_and_abstention) ... ok
+test_shap_reconstruction (test_core.CoreTests.test_shap_reconstruction) ... ok
+test_invalid_citation_and_json_rejected (test_generation.GenerationTests.test_invalid_citation_and_json_rejected) ... ok
+test_offline_returns_no_fake_text (test_generation.GenerationTests.test_offline_returns_no_fake_text) ... ok
+test_unconfigured_and_no_evidence (test_generation.GenerationTests.test_unconfigured_and_no_evidence) ... ok
+test_valid_json_and_protocol (test_generation.GenerationTests.test_valid_json_and_protocol) ... ok
+test_no_evidence_does_not_call_generator (test_session.SessionTests.test_no_evidence_does_not_call_generator) ... ok
+test_partial_failure_is_atomic (test_session.SessionTests.test_partial_failure_is_atomic) ... ok
+test_success_then_failure_clears_export (test_session.SessionTests.test_success_then_failure_clears_export) ... ok
+test_invalid_input_does_not_create_database (test_storage.StorageTests.test_invalid_input_does_not_create_database) ... ok
+test_nonfinite_payload_not_inserted (test_storage.StorageTests.test_nonfinite_payload_not_inserted) ... ok
+
+======================================================================
+ERROR: test_app (unittest.loader._FailedTest.test_app)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_app
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/auditoria_trabalho/Fundamento/tests/test_app.py", line 3, in <module>
+    from streamlit.testing.v1 import AppTest
+ModuleNotFoundError: No module named 'streamlit'
+
+
+======================================================================
+ERROR: test_charts (unittest.loader._FailedTest.test_charts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_charts
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/mnt/data/auditoria_trabalho/Fundamento/tests/test_charts.py", line 2, in <module>
+    import altair as alt
+ModuleNotFoundError: No module named 'altair'
+
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.033s
+
+FAILED (errors=2)

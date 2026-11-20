@@ -1,3 +1,5 @@
+> **Atualização 20/11/2026:** o enunciado foi recebido. Os requisitos confirmados estão em `Matriz_requisitos.md` e as falhas detalhadas em `Auditoria_20_11.md`. Esta nota anterior permanece como histórico.
+
 # Plano de continuidade e aceitação
 
 ## Resolvido nesta revisão

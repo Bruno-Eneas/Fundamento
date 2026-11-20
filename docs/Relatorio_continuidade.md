@@ -1,3 +1,5 @@
+> **Nota posterior:** este relatório documenta o estado anterior ao recebimento do enunciado. Para requisitos oficiais, consulte `Enunciado.pdf` e `Matriz_requisitos.md`.
+
 # Fundamento | Continuidade
 
 ## Entrega de 20 de novembro de 2026
