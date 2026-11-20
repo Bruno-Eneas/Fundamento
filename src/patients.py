@@ -15,7 +15,7 @@ from pathlib import Path
 
 DEMO_PATIENT_ID = "DEMO-001"
 _ALLOWED_NOTE_TYPES = ("Observação", "Pendência", "Plano de acompanhamento")
-_ALLOWED_ORIGINS = ("Paciente demonstrativo", "Médico demonstrativo")
+_ALLOWED_ORIGINS = ("Médico demonstrativo",)
 _FIELDS = ("glicemia_jejum", "hba1c", "ttgo_1h", "ttgo_2h", "glicemia_casual")
 
 
@@ -121,9 +121,17 @@ def _require_patient(con, patient_id):
         raise ValueError("Paciente fictício não encontrado.")
 
 
+def _valid_medical_actor(value):
+    """Identidade fictícia do operador, nunca valor fornecido por paciente."""
+    import re
+    return (value in _ALLOWED_ORIGINS or
+            (isinstance(value, str) and
+             re.fullmatch(r"Médico demonstrativo · MED-[A-Z0-9-]{2,30}", value) is not None))
+
+
 def add_exam(patient_id, examined_on, values, conditions, recorded_by):
     from src.clinical import evaluate_labs, _num
-    if recorded_by not in _ALLOWED_ORIGINS:
+    if not _valid_medical_actor(recorded_by):
         raise ValueError("Origem inválida.")
     try:
         d = date.fromisoformat(str(examined_on))
@@ -170,7 +178,7 @@ def list_exams(patient_id):
 
 
 def add_note(patient_id, author, note_type, body):
-    if author != "Médico demonstrativo":
+    if not _valid_medical_actor(author):
         raise ValueError("Somente o papel de médico demonstrativo registra notas.")
     if note_type not in _ALLOWED_NOTE_TYPES:
         raise ValueError("Tipo de nota inválido.")

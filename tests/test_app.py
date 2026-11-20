@@ -12,9 +12,11 @@ class AppTests(unittest.TestCase):
             try:
                 a = AppTest.from_file(
                     str(Path(__file__).parents[1] / "app.py"), default_timeout=50
-                ).run()
+                )
+                a.session_state["account"] = {"login": "MED-DEMO", "role": "doctor", "patient_id": None}
+                a.run()
                 self.assertEqual(len(a.exception), 0)
-                self.assertEqual(a.session_state["navigation"], "Exames")
+                self.assertEqual(a.session_state["navigation"], "Pacientes")
                 a.button(key="nav_Análise").click().run()
                 self.assertEqual(a.session_state["result"]["case"], "Caso B — fictício")
                 score = a.session_state["result"]["score"]

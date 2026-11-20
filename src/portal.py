@@ -1,16 +1,19 @@
-"""Telas de perfis fictícios; troca de papel NÃO é autenticação.
+"""Portal acadêmico de acesso separado; somente dados fictícios.
 
-Não usar com pacientes identificáveis ou como ferramenta clínica de decisão.
+Senhas demonstrativas NÃO significam prontuário seguro para uso real.
 """
+import html
 import pandas as pd
 import streamlit as st
 from datetime import date
 from src.patients import (
-    DEMO_PATIENT_ID, add_exam, add_note, add_patient, get_patient,
+    add_exam, add_note, add_patient, get_patient,
     list_exams, list_notes, list_patients,
 )
 from src.clinical import evaluate_labs, SOURCES
 from src.lab_pdf import extract_labs_from_pdf
+from src.auth import create_patient_login, can_view_profile, can_edit_profile
+from src.presentation import brief_status
 
 FIELDS = [
     ('glicemia_jejum', 'Glicemia de jejum (mg/dL)'),
@@ -63,7 +66,7 @@ def _history_graph(exams):
 
 
 def _exam_form(patient_id, actor):
-    prefix = ('med_' if actor == 'Médico demonstrativo' else 'pac_') + patient_id
+    prefix = 'med_' + patient_id
     with st.expander('Importar resultados de PDF fictício (opcional)'):
         st.caption('Aceita apenas PDF textual fictício ou anonimizado. Confira os valores extraídos antes de salvar.')
         pdf = st.file_uploader('PDF demonstrativo (até 5 MB)', type=['pdf'], key=prefix+'_file')
@@ -92,10 +95,10 @@ def _exam_form(patient_id, actor):
             'adult': cc1.checkbox('Pessoa adulta', value=True, key=prefix+'_adult'),
             'pregnant': cc2.checkbox('Gestação', value=False, key=prefix+'_pregnant'),
             'known_diabetes': cc1.checkbox('Diagnóstico prévio relatado', value=False, key=prefix+'_known'),
-            'fasting_confirmed': cc2.checkbox('Jejum confirmado', value=True, key=prefix+'_fasting'),
-            'certified_a1c': cc1.checkbox('HbA1c com método padronizado', value=True, key=prefix+'_certified'),
+            'fasting_confirmed': cc2.checkbox('Jejum confirmado', value=False, key=prefix+'_fasting'),
+            'certified_a1c': cc1.checkbox('HbA1c com método padronizado', value=False, key=prefix+'_certified'),
             'a1c_interference': cc2.checkbox('Possível interferência na HbA1c', value=False, key=prefix+'_interference'),
-            'ogtt_75g_confirmed': cc1.checkbox('TTGO com 75 g', value=True, key=prefix+'_ogtt'),
+            'ogtt_75g_confirmed': cc1.checkbox('TTGO com 75 g', value=False, key=prefix+'_ogtt'),
             'classic_symptoms': cc2.checkbox('Sintomas típicos relatados', value=False, key=prefix+'_symptoms'),
         }
         submitted = st.form_submit_button('Salvar exame neste perfil', type='primary')
@@ -109,115 +112,148 @@ def _exam_form(patient_id, actor):
             st.rerun()
 
 
-def _patient_snapshot(exams):
-    if not exams:
-        st.info('Nenhum exame cadastrado neste perfil fictício. Envie um exame para iniciar.')
-        return
-    result = _latest(exams)
-    headline, message = STATUS_PATIENT.get(result.status, ('Análise laboratorial', result.explanation))
-    st.markdown('#### Resultado do exame mais recente')
-    if result.status in ('criterios_concordantes', 'confirmacao_pendente', 'inconclusivo', 'necessita_avaliacao'):
-        st.warning('**' + headline + '**  \n' + message)
+def _status_card(result, *, patient_view=True):
+    info = brief_status(result)
+    st.markdown(
+        '<div class="f-result-card">'
+        '<div class="f-result-level">' + html.escape(info["level"]) + '</div>'
+        '<h2>' + html.escape(info["title"]) + '</h2>'
+        '<p>' + html.escape(info["reason"]) + '</p>'
+        '<div class="f-result-next"><strong>O que fazer:</strong> '
+        + html.escape(info["next_step"]) + '</div></div>',
+        unsafe_allow_html=True,
+    )
+    if patient_view:
+        st.caption('Este resumo é educativo, não confirma nem exclui diabetes tipo 2.')
     else:
-        st.info('**' + headline + '**  \n' + message)
-    st.caption('Exame em ' + exams[0]['examined_on'] + ' · Resultado educativo, não confirma diabetes tipo 2.')
-    st.write('**Por que recebemos esse resultado?**')
-    _summarize_measurements(result)
-    st.write('**O que fazer agora?**  Procure o médico responsável para revisar os exames e seu histórico.')
-    if result.suggested_exams:
-        st.caption('Informação adicional a discutir com o médico: ' + result.suggested_exams[0]['exam'])
+        st.caption('Conclusão laboratorial, não diagnóstico do tipo 2. Probabilidade individual: não disponível (modelo não validado).')
 
 
-def render_patient():
-    patient = get_patient(DEMO_PATIENT_ID)
-    exams = list_exams(DEMO_PATIENT_ID)
-    st.markdown('<section class="f-hero"><h1>Meu acompanhamento</h1><p>Veja seus resultados e envie novos exames fictícios para construir um histórico.</p></section>', unsafe_allow_html=True)
-    st.warning('**Área demonstrativa.** A seleção de papel não é login seguro. Não envie dados pessoais nem exames reais.')
-    st.markdown(f'**{patient["label"]}** · Identificação fictícia: `{patient["id"]}`')
-    _patient_snapshot(exams)
-    st.divider()
-    st.markdown('### Meu histórico')
-    if exams:
-        _history_graph(exams)
-        with st.expander('Ver exames anteriores'):
-            for ex in exams:
-                with st.container(border=True):
-                    st.write('**'+ex['examined_on']+'** · '+ex['recorded_by'])
-                    _summarize_measurements(_result(ex))
-    st.divider()
-    st.markdown('### Enviar novo exame fictício')
-    _exam_form(DEMO_PATIENT_ID, 'Paciente demonstrativo')
-    st.caption('As observações internas dos profissionais não são exibidas na área do paciente.')
-
-
-def render_doctor():
-    st.markdown('<section class="f-hero"><h1>Pacientes e histórico</h1><p>Consulte análises, evolução dos exames e registros da equipe para cada perfil fictício.</p></section>', unsafe_allow_html=True)
-    st.warning('**Módulo de demonstração:** papel de médico simulado, sem autenticação. Não utilizar dados de pacientes reais ou identificáveis.')
-    patients = list_patients()
-    labels = {p['id']: p['label'] + ' · ' + p['id'] for p in patients}
-    pid = st.selectbox('Selecionar perfil fictício', list(labels), format_func=lambda x: labels[x], key='doctor_patient_choice')
+def render_patient(account):
+    if account.get('role') != 'patient' or not account.get('patient_id'):
+        st.error('Acesso não autorizado.'); st.stop()
+    pid = account['patient_id']  # sempre da conta, nunca um seletor livre
+    if not can_view_profile(account, pid):
+        st.error('Acesso negado.'); st.stop()
     patient = get_patient(pid)
-    st.markdown(f'### {patient["label"]}')
-    st.caption(f'Identificação fictícia: {pid} · Idade informada: {patient["age"]} anos · Dados de demonstração')
+    if not patient:
+        st.error('Perfil não encontrado.'); st.stop()
     exams = list_exams(pid)
+    st.markdown('<section class="f-hero"><h1>Meu resultado</h1>'
+                '<p>Seus exames explicados de forma simples.</p></section>', unsafe_allow_html=True)
+    st.write('**' + patient['label'] + '**')
+    st.caption('Número do perfil: ' + pid + ' · Demonstração com dados fictícios')
     if exams:
+        _status_card(_latest(exams))
+        st.markdown(f'**Último exame:** {exams[0]["examined_on"]}')
+        st.caption(f'Exames cadastrados: {len(exams)}')
+        with st.expander('Datas dos meus exames'):
+            for ex in exams:
+                status = brief_status(_result(ex))
+                st.write(ex['examined_on'] + ' · ' + status['level'])
+    else:
+        st.info('Você ainda não tem exames cadastrados. Seu médico poderá adicioná-los.')
+    st.caption('Somente a equipe médica pode lançar exames ou observações neste protótipo.')
+    st.caption('Não use esta demonstração para tomar decisões sobre sua saúde.')
+
+
+def render_doctor(account):
+    if account.get('role') != 'doctor':
+        st.error('Acesso restrito à área médica demonstrativa.'); st.stop()
+    st.markdown('<section class="f-hero"><h1>Pacientes</h1>'
+                '<p>Pesquise um perfil, confira o resultado e registre a evolução.</p></section>',
+                unsafe_allow_html=True)
+    st.info('Ambiente acadêmico com pacientes fictícios. Não enviar exames reais nem informações identificáveis.')
+    if 'new_patient_credentials' in st.session_state:
+        new_id, pwd = st.session_state['new_patient_credentials']
+        st.success('Novo perfil criado. Guarde estes dados fictícios antes de ocultar:')
+        st.code('Número: ' + new_id + '\nSenha: ' + pwd)
+        if st.button('Ocultar a senha gerada', key='hide_new_pwd'):
+            st.session_state.pop('new_patient_credentials', None)
+            st.rerun()
+    query = st.text_input('Pesquisar paciente por número ou nome fictício',
+                          placeholder='Ex.: DEMO-001', key='doctor_query').strip().casefold()
+    patients = [p for p in list_patients()
+                if query in p['id'].casefold() or query in p['label'].casefold()]
+    if not patients:
+        st.warning('Nenhum paciente encontrado. Tente outro número ou nome fictício.')
+        _new_patient_form()
+        return
+    labels = {p['id']: p['label'] + ' · ' + p['id'] for p in patients}
+    pid = st.selectbox('Selecionar paciente', list(labels),
+                       format_func=lambda x: labels[x], key='doctor_patient_choice')
+    if not can_edit_profile(account, pid):
+        st.error('Acesso negado.'); st.stop()
+    patient = get_patient(pid)
+    exams = list_exams(pid)
+    st.markdown('### ' + patient['label'])
+    st.caption('Perfil ' + pid + ' · ' + str(patient['age']) + ' anos · Histórico fictício')
+    if exams:
+        st.markdown('#### Resultado mais recente')
         result = _latest(exams)
-        st.markdown('#### Conclusão resumida')
-        st.info('**'+result.headline+'**  \n'+result.explanation)
-        st.write('**Critérios e resultados utilizados**')
+        _status_card(result, patient_view=False)
+        c1, c2 = st.columns(2)
+        c1.metric('Último exame', exams[0]['examined_on'])
+        c2.metric('Exames registrados', str(len(exams)))
+        st.write('**Principais resultados:**')
         _summarize_measurements(result)
-        st.caption('Probabilidade individual de diabetes tipo 2: não disponível (modelo não validado).')
-        if result.suggested_exams:
-            st.write('**Informações complementares a considerar**')
-            for suggestion in result.suggested_exams:
-                st.write('• '+suggestion['exam']+' — '+suggestion['reason'])
-        with st.expander('Critérios, limitações e fontes científicas'):
+        with st.expander('Abrir justificativa completa e fontes'):
+            st.write(result.explanation)
+            if result.suggested_exams:
+                st.write('**Informações complementares a considerar:**')
+                for suggestion in result.suggested_exams:
+                    st.write('• ' + suggestion['exam'] + ': ' + suggestion['reason'])
             for note in result.notes:
                 st.warning(note)
             for sid in result.source_ids:
                 st.markdown(f'[{SOURCES[sid]["title"]}]({SOURCES[sid]["url"]})')
-        st.markdown('#### Evolução dos exames')
-        _history_graph(exams)
-        with st.expander('Consultar todos os exames registrados'):
+        with st.expander('Consultar evolução e histórico completo'):
+            _history_graph(exams)
             for ex in exams:
                 with st.container(border=True):
-                    st.write('**'+ex['examined_on']+'** · Inserido por '+ex['recorded_by'])
+                    st.write('**' + ex['examined_on'] + '** · ' + ex['recorded_by'])
                     _summarize_measurements(_result(ex))
     else:
-        st.info('Perfil sem exames registrados.')
+        st.info('Perfil ainda sem exames registrados.')
     st.divider()
-    st.markdown('### Evolução e observações da equipe médica')
-    st.caption('Notas fictícias com autoria e data. Registros anteriores não podem ser apagados ou modificados nesta demonstração.')
+    st.markdown('### Notas para acompanhamento')
+    st.caption('Observações médicas ficam restritas à área do médico e mantêm autoria e data.')
     for note in list_notes(pid):
         with st.container(border=True):
             st.write(f'**{note["type"]}** · {note["author"]} · {note["created_at"][:16].replace("T", " ")} UTC')
             st.write(note['body'])
-    with st.form('note_'+pid, clear_on_submit=True):
-        note_type = st.selectbox('Tipo da observação', ['Observação','Pendência','Plano de acompanhamento'])
-        body = st.text_area('Escrever observação fictícia para próximo atendimento', max_chars=1000,
-                            placeholder='Ex.: conferir os resultados antes de nova avaliação')
-        written = st.form_submit_button('Adicionar observação')
+    with st.form('note_' + pid, clear_on_submit=True):
+        note_type = st.selectbox('Categoria', ['Observação','Pendência','Plano de acompanhamento'])
+        body = st.text_area('Nova observação para próximos atendimentos', max_chars=1000,
+                            placeholder='Ex.: conferir exame de controle no próximo retorno')
+        written = st.form_submit_button('Salvar observação')
     if written:
         try:
-            add_note(pid, 'Médico demonstrativo', note_type, body)
+            add_note(pid, 'Médico demonstrativo · ' + account['login'], note_type, body)
         except ValueError as exc:
             st.error(str(exc))
         else:
-            st.success('Observação fictícia registrada no histórico.')
+            st.success('Observação registrada no histórico fictício.')
             st.rerun()
     st.divider()
-    with st.expander('Adicionar novo exame para este perfil'):
-        _exam_form(pid, 'Médico demonstrativo')
-    with st.expander('Cadastrar outro perfil de demonstração'):
+    with st.expander('Adicionar exame ao histórico deste paciente'):
+        _exam_form(pid, 'Médico demonstrativo · ' + account['login'])
+    _new_patient_form()
+
+
+def _new_patient_form():
+    with st.expander('Cadastrar novo paciente fictício'):
         with st.form('new_demo_patient', clear_on_submit=True):
-            alias = st.text_input('Identificação fictícia (não informar nome real)', placeholder='Ex.: Paciente fictício 003')
+            alias = st.text_input('Nome ou apelido fictício', placeholder='Ex.: Paciente fictício 003')
             age = st.number_input('Idade fictícia', min_value=18, max_value=110, value=45)
-            add = st.form_submit_button('Criar perfil fictício')
+            add = st.form_submit_button('Criar perfil e acesso')
         if add:
             try:
                 new_id = add_patient(alias, int(age))
-            except ValueError as e:
-                st.error(str(e))
+                pwd = create_patient_login(new_id)
+            except ValueError as exc:
+                st.error(str(exc))
             else:
-                st.success('Perfil fictício '+new_id+' criado. Selecione-o na lista acima.')
+                # A senha é entregue ao médico uma vez, jamais incluída em logs ou URLs.
+                st.session_state['new_patient_credentials'] = (new_id, pwd)
                 st.rerun()

@@ -1,3 +1,9 @@
+# Fundamento 8 — duas áreas demonstrativas
+
+A partir do pacote 8, a página inicial solicita **número de perfil e senha**. O médico pode buscar pacientes fictícios, lançar exames e registrar observações; o paciente vê somente um cartão de conclusão e datas, **sem gráficos**. Consulte `COMECAR_AQUI.txt` e `docs/Guia_v8.md`. As seções históricas abaixo descrevem versões anteriores e podem estar desatualizadas em relação ao novo fluxo. **Não usar dados reais; não há previsão probabilística validada de diabetes tipo 2.**
+
+---
+
 
 ## Novidade demonstrativa: área do paciente e do médico
 

@@ -31,7 +31,7 @@ class PatientsDemoTests(unittest.TestCase):
         self.assertEqual(get_patient(pid)["age"], 35)
         rid = add_exam(pid, "2026-11-12", {"glicemia_jejum": 132, "hba1c": "6,8"},
                        {"adult": True, "fasting_confirmed": True, "certified_a1c": True},
-                       "Paciente demonstrativo")
+                       "Médico demonstrativo")
         self.assertEqual(list_exams(pid)[0]["id"], rid)
         self.assertEqual(list_exams(pid)[0]["values"]["hba1c"], 6.8)
 
@@ -39,8 +39,10 @@ class PatientsDemoTests(unittest.TestCase):
         before = len(list_exams(DEMO_PATIENT_ID))
         for vals in [{"hba1c": "abc"}, {"hba1c": float('nan')}, {}]:
             with self.assertRaises(ValueError):
-                add_exam(DEMO_PATIENT_ID, "2026-11-15", vals, {}, "Paciente demonstrativo")
+                add_exam(DEMO_PATIENT_ID, "2026-11-15", vals, {}, "Médico demonstrativo")
         self.assertEqual(len(list_exams(DEMO_PATIENT_ID)), before)
+        with self.assertRaises(ValueError):
+            add_exam(DEMO_PATIENT_ID, "2026-11-12", {"hba1c": 6.8}, {}, "Paciente demonstrativo")
 
     def test_notes_append_only_and_scope(self):
         before = len(list_notes(DEMO_PATIENT_ID))

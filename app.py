@@ -10,6 +10,7 @@ from src.charts import contribution_spec
 from src.clinical import evaluate_labs, SOURCES
 from src.lab_pdf import extract_labs_from_pdf
 from src.patients import initialize_demo
+from src.auth import initialize_auth, authenticate
 from src.portal import render_patient, render_doctor
 
 ROOT = Path(__file__).parent
@@ -33,17 +34,18 @@ def choose_page(value):
     st.session_state["navigation"] = value
 
 
-def choose_role():
-    if st.session_state["role"] == "Paciente demonstrativo":
-        st.session_state["navigation"] = "Meu perfil"
-    else:
-        st.session_state["navigation"] = "Pacientes"
+def sign_out():
+    # Apaga dados de sessão para não conservar seleções entre acessos diferentes.
+    selected_theme = st.session_state.get("appearance", "Claro")
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state["appearance"] = selected_theme
 
 
 initialize_demo()
+initialize_auth()
 st.session_state.setdefault("appearance", "Claro")
-st.session_state.setdefault("role", "Médico demonstrativo")
-st.session_state.setdefault("navigation", "Exames")
+st.session_state.setdefault("navigation", "Pacientes")
 appearance = st.session_state["appearance"]
 dark = appearance == "Escuro"
 colors = (
@@ -101,25 +103,62 @@ css = (
     .replace("__HERO__", hero_data)
 )
 st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
+# Login DEMONSTRATIVO: nenhum perfil é exibido antes da verificação de senha.
+# Este módulo ainda NÃO implementa gestão de acesso adequada a dados reais.
+if "account" not in st.session_state:
+    st.markdown('<section class="f-hero"><h1>Fundamento</h1>'
+                '<p>Acompanhe seus exames ou consulte o histórico de pacientes fictícios.</p>'
+                '</section>', unsafe_allow_html=True)
+    st.info("Acesso de demonstração, com perfis e exames inteiramente fictícios. "
+            "Não insira dados pessoais ou documentos reais.")
+    col_login, _ = st.columns([1.2, 1])
+    with col_login:
+        with st.form("demo_login", clear_on_submit=False):
+            login_code = st.text_input("Número do perfil ou usuário médico", placeholder="DEMO-001 ou MED-DEMO")
+            login_password = st.text_input("Senha", type="password")
+            submitted_login = st.form_submit_button("Entrar", type="primary", width="stretch")
+        if submitted_login:
+            attempts = st.session_state.get("login_attempts", 0)
+            if attempts >= 5:
+                st.error("Muitas tentativas nesta sessão. Reabra uma sessão para a demonstração.")
+            else:
+                account = authenticate(login_code, login_password)
+                if account is None:
+                    st.session_state["login_attempts"] = attempts + 1
+                    st.error("Número ou senha incorretos.")
+                else:
+                    st.session_state["account"] = account
+                    st.session_state.pop("login_attempts", None)
+                    st.session_state["navigation"] = (
+                        "Meu perfil" if account["role"] == "patient" else "Pacientes"
+                    )
+                    st.rerun()
+    st.caption("As credenciais iniciais são geradas somente no seu computador, no arquivo "
+               "`runtime/ACESSOS_DEMONSTRACAO.txt` após a primeira execução. "
+               "Não disponibilize esse arquivo publicamente.")
+    st.stop()
+
+account = st.session_state["account"]
+st.session_state["role"] = (
+    "Paciente demonstrativo" if account["role"] == "patient" else "Médico demonstrativo"
+)
+if account["role"] == "patient":
+    st.session_state["navigation"] = "Meu perfil"
+
 metrics = json.loads((ROOT / "assets/metrics.json").read_text(encoding="utf-8"))
 with st.sidebar:
     st.markdown(
         '<div class="f-brand"><span class="f-symbol" aria-hidden="true"></span> Fundamento</div>',
         unsafe_allow_html=True,
     )
-    st.selectbox(
-        "Visualizar como (acesso fictício, SEM login)",
-        ["Médico demonstrativo", "Paciente demonstrativo"],
-        key="role", on_change=choose_role,
-    )
+    st.caption(("Área do médico · " if account["role"] == "doctor" else "Meu perfil · ") + account["login"])
+    st.button("Sair da conta", key="logout", on_click=sign_out, icon=":material/logout:", width="stretch")
     with st.container(key="side_navigation"):
         pages = (
-            [("Meu perfil", "Meu perfil e exames", ":material/person:")]
+            [("Meu perfil", "Meu resultado", ":material/person:")]
             if st.session_state["role"] == "Paciente demonstrativo" else
-            [("Pacientes", "Pacientes e histórico", ":material/groups:"),
-             ("Exames", "Laboratório demonstrativo", ":material/biotech:"),
-             ("Análise", "Modelo experimental", ":material/bar_chart:"),
-             ("Evidências", "Fontes e evidências", ":material/menu_book:"),
+            [("Pacientes", "Pesquisar pacientes", ":material/groups:"),
+             ("Evidências", "Fontes científicas", ":material/menu_book:"),
              ("Método", "Método e limites", ":material/science:")]
         )
         for page, label, icon in pages:
@@ -134,6 +173,12 @@ with st.sidebar:
                 on_click=choose_page,
                 args=(page,),
             )
+        if account["role"] == "doctor":
+            with st.expander("Demonstrações técnicas"):
+                st.button("Testar exames avulsos", key="nav_Exames", icon=":material/biotech:",
+                          width="stretch", on_click=choose_page, args=("Exames",))
+                st.button("Modelo experimental", key="nav_Análise", icon=":material/bar_chart:",
+                          width="stretch", on_click=choose_page, args=("Análise",))
     navigation = st.session_state["navigation"]
     st.divider()
     if navigation == "Análise":
@@ -597,14 +642,13 @@ if navigation == "Método":
         "**Ainda pendente:** conferir codificação original e licença, expandir fontes, revisar expertise, ampliar os testes de geração, conectar banco remoto, publicar e validar externamente."
     )
 
-st.divider()
-st.caption(
-    "Fundamento · Projeto acadêmico independente · Sem validação clínica ou vínculo institucional oficial declarado."
-)
-
-
 if navigation == "Pacientes" and st.session_state["role"] == "Médico demonstrativo":
-    render_doctor()
+    render_doctor(account)
 
 if navigation == "Meu perfil" and st.session_state["role"] == "Paciente demonstrativo":
-    render_patient()
+    render_patient(account)
+
+st.divider()
+st.caption(
+    "Fundamento · Protótipo acadêmico com perfis fictícios · Sem validação clínica ou vínculo institucional oficial declarado."
+)

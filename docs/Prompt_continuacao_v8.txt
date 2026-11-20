@@ -1,0 +1,34 @@
+PROMPT PARA O COLEGA — CONTINUAR O FUNDAMENTO A PARTIR DO PACOTE 8
+
+Atue como engenheiro de software Python/Streamlit e revisor acadêmico. Leia os arquivos REAIS do ZIP Fundamento_8.zip antes de editar. Não reescreva do zero nem invente testes, deploy, validação clínica ou commits.
+
+OBJETIVO ATUAL
+Um aplicativo com dois tipos de interface: paciente e médico. O paciente entra com número de perfil e senha e vê o mínimo: estado dos exames, uma explicação curta, o que fazer e data. SEM gráficos, probabilidades inventadas, SHAP ou notas internas. O médico faz login próprio, pesquisa pacientes autorizados (todos os exemplos fictícios, somente na demonstração), vê uma conclusão de leitura rápida e pode abrir os valores, histórico, referências e observações. Registra exames e notas com autoria. As contas são FICTÍCIAS, não aptas a prontuários reais.
+
+CONCLUÍDO NO PACOTE 8 (CONFIRMAR EM CÓDIGO)
+- `src/auth.py`: credenciais aleatórias locais armazenadas por hash PBKDF2, geração inicial para MED-DEMO, MED-002, DEMO-001, DEMO-002, criação de login para novo paciente e reset local via terminal.
+- `src/presentation.py`: mensagens resumidas baseadas nos status existentes de `evaluate_labs`.
+- `src/portal.py`: paciente com resumo simples, sem gráficos; médico com busca, resumo no topo, detalhes expansíveis, histórico, exames e notas.
+- `app.py`: tela de login demonstrativo e menu por papel, sem troca livre via selectbox.
+- `src/patients.py`: exames registrados por médico demonstrativo, notas com autoria separada.
+- testes: `tests/test_auth.py`, `tests/test_patients.py`, `tests/test_app.py` ajustado.
+
+O QUE AINDA PRECISA SER FEITO
+1. Executar `Testar_Windows.bat` com Python 3.12 e dependências instaladas; corrigir qualquer erro real. Conferir especialmente o `AppTest` (não executado nesta sessão por falta de Streamlit).
+2. Verificar a experiência no navegador em desktop/celular e nos temas claro/escuro, com contas de paciente e médico. Ajustar CSS e textos sem alterar regras clínicas.
+3. Implementar um serviço de autorização real antes de qualquer teste com dados pessoais: usuários reais, médicos autorizados por paciente, autenticação robusta com recuperação segura, sessões, controle de acesso no backend, auditoria e LGPD. Não migrar para pacientes reais sem validação jurídica, institucional e técnica.
+4. Se for exigido Chat com RAG sobre histórico do paciente, construir com fontes científicas de qualidade e autorização explícita, citar trechos exatos, bloquear extrapolações e incluir testes de alucinação; não chamar o Ollama antigo de RAG individual validado.
+5. Diferenciar critérios laboratoriais para diabetes, classificação do tipo e estimativa de probabilidade. Para estimar probabilidade de diabetes tipo 2, localizar/coletar base apropriada e validar modelo/calibração; nunca usar o score histórico de quatro variáveis como risco laboratorial.
+6. Publicar a demonstração com APENAS dados fictícios, sem credenciais no Git e com banco persistente adequado ao serviço. Comprovar URL pública em outra máquina.
+7. Atualizar relatório técnico (15–25 páginas e 22 itens), plano de disseminação (5–10 páginas), pitch (15 min) e declaração de IA do enunciado original. Evidências e afirmações devem corresponder à versão realmente executada.
+
+ACESSO INICIAL
+No primeiro início, o app gera `runtime/ACESSOS_DEMONSTRACAO.txt` local, ignorado no Git. Não incluir credenciais no ZIP nem no repositório. Para redefinir: `.venv\\Scripts\\python.exe -m src.auth reset DEMO-001`.
+
+REGRAS INEGOCIÁVEIS
+- Não usar dados de pacientes reais.
+- Não dizer que resultado de exame determina diabetes tipo 2 ou que a IA o diagnosticou.
+- Não emitir percentual de risco sem modelo apropriado e validação externa.
+- Sempre priorizar conclusão curta, clara e baseada em evidência.
+- O paciente só pode visualizar seu perfil, o médico só deve acessar perfis com autorização numa versão real.
+- Explicar termos técnicos e fornecer diffs, testes executados, evidências e arquivos alterados.
