@@ -1,90 +1,66 @@
-CONTINUIDADE DO PROJETO FUNDAMENTO - SCOM
+Você vai revisar um projeto acadêmico existente chamado Fundamento. Esta é uma conversa comum do ChatGPT, fora do Work Mode. Não presuma acesso ao computador, arquivos de conversas anteriores, Library, GitHub, localhost, terminal ou navegador. Use os anexos desta conversa. Se conseguir extrair o ZIP, leia o projeto. Se não conseguir, peça Codigo_para_revisao.txt e os arquivos específicos necessários. Não diga que executou testes apenas por ler o log.
 
-Você está continuando um projeto existente de Daniel e mais dois colegas. Leia os arquivos anexados antes de propor mudanças. Não reconstrua do zero e não trate imagens conceituais como telas implementadas.
+ANEXOS
+1. Fundamento_3.zip: projeto completo, modelo demonstrativo, fontes, testes, documentação e histórico .git.
+2. Relatorio_continuidade.pdf: estado técnico e limites, atualizado em 20/11/2026.
+3. Codigo_para_revisao.txt: cópia textual dos arquivos legíveis, para plataformas que não abrem ZIP. Não contém modelo binário nem histórico Git completo.
+4. Fundamento.bundle: histórico Git portátil; só é necessário para restaurar o repositório com Git instalado.
+Os nomes podem variar ao baixar; verifique o conteúdo. Não use Fundamento_1 ou Fundamento_2 como versão atual se o ZIP 3 está presente.
 
-OBJETIVO E CONTEXTO
-Fundamento é um protótipo acadêmico que explica a saída de um modelo e permite conferir fontes documentais. Diabetes é o domínio demonstrativo. O professor tem uma parceria com a Unimed e mencionou possibilidade futura de iniciação científica. Não há integração com sistemas da Unimed, pacientes reais, validação clínica ou autorização de marca comprovada. Prazo informado pelo usuário: dia 22; novembro de 2026 foi inferido da sessão. Confirmar mês, ano e horário da entrega. Confirmar entregáveis no enunciado do professor; relatório de continuidade não é o relatório acadêmico final.
+PEDIDO
+Faça uma auditoria crítica de código, método, evidências, documentação e preparo para entrega. Identifique falhas por arquivo e função; classifique gravidade e mostre como verificar. Corrija o que conseguir nos anexos, preservando funcionalidades; quando não puder executar, entregue passos exatos para o grupo executar no Windows. Não reescreva o projeto do zero e não invente aprovações, métricas, referências ou commits. Não diga que está completo sem confrontar o enunciado.
 
-ARQUIVOS
-Use Fundamento_2.zip como projeto completo desta entrega. O app.py avulso é o mesmo do ZIP. O PDF Relatorio_continuidade.pdf descreve o estado e as limitações. Os arquivos originais de treinamento, modelo e evidências foram preservados. Não confunda com Fundamento_1.zip, que tem interface anterior.
+CONTEXTO
+Daniel e mais dois colegas fazem uma proposta acadêmica demonstrativa sobre indicadores de diabetes. O professor mencionou parceria com Unimed e possível futura IC. O app não é sistema oficial, não usa pacientes reais e não tem validação clínica. O usuário informou prazo no dia 22; confirmar mês, ano e horário. O enunciado original não acompanha o pacote atual: perguntar por ele antes de estabelecer número de páginas, tópicos, slides ou duração. Dados de outras matérias/professores não são automaticamente os deste trabalho.
 
-ARQUITETURA
-Python 3.12, Streamlit, pandas, NumPy, scikit-learn, SHAP, SQLite local; conector PostgreSQL opcional via DATABASE_URL e geração local Ollama via OLLAMA_MODEL e OLLAMA_URL. requirements.txt contém as versões. app.py: interface, estado, navegação, visual e exportações. src/core.py: casos, validação, modelo, SHAP e recuperação. src/generation.py: chamada Ollama e verificação estrutural de citações. src/storage.py: avaliações. assets: modelo treinado, métricas, metadados, evidências e regras. train.py: treinamento; não executar sem necessidade. tests: testes automatizados.
+OBJETIVO DO PRODUTO
+Mostrar saída de um modelo, fatores que contribuíram, fontes documentais recuperadas e limites. Saber declarar falta de suporte. Não confirmar/descartar doença nem produzir certeza diagnóstica. SHAP explica o modelo, não a causa clínica. O percentual não é risco futuro nem probabilidade clínica validada. Caso A/B/C são fictícios fixos; não há formulário de prontuário real.
 
-MODELO E LIMITES
-Árvore de decisão com quatro entradas: Age, BMI, PhysActivity, HighBP. Base CDC Diabetes Health Indicators/UCI, 253.680 registros históricos dos EUA. Classes e codificação original ainda precisam de reconciliação documental; o aplicativo chama a saída de classe 1 de Diabetes_binary. Não chamar de probabilidade de diabetes tipo 2 nem risco futuro. Fontes documentais falam em diabetes tipo 2, mas o alvo não distingue tipos. SHAP explica o modelo, não causa clínica. Em assets/metrics.json: ROC AUC aproximadamente 0,7554, AP 0,3264; não há calibração/validação clínica externa. Não inventar métricas.
+IMPLEMENTAÇÃO
+Python 3.12, Streamlit 1.67.0, scikit-learn 1.8.0, SHAP 0.54.1; demais versões em requirements.txt. app.py organiza interface. assets/theme.css controla estilos. src/core.py valida entradas, calcula SHAP e recupera trechos. src/charts.py fornece especificação do gráfico; src/session.py faz geração transacional e limpa estado antigo; src/generation.py chama Ollama; src/storage.py salva avaliações. train.py é treinamento opcional que baixa CSV e SOBRESCREVE modelo/métricas. Não executar para apenas testar.
 
-RECUPERAÇÃO, RAG E XAG
-A recuperação usa TF-IDF com filtro explícito por fator e três trechos cadastrados NIDDK/NIH: E01 idade, E02 IMC, E03 atividade física. Hipertensão não tem evidência elegível nesta base e deve continuar mostrando essa ausência até inclusão fundamentada de fonte. Ausência na base não significa ausência de associação no mundo. Sínteses cadastradas são diferenciadas de texto gerado. O Ollama recebe o nome do fator e os documentos; não recebe o perfil inteiro nem as contribuições SHAP. Portanto o rascunho é contexto geral e pode se repetir entre casos, não é explicação clínica personalizada.
-A geração retorna JSON com claims e source_ids. O código verifica estrutura e IDs pertencentes ao conjunto recuperado; NÃO verifica semanticamente cada afirmação. Não alegar zero alucinações. XAG foi mencionado pelo usuário como Expertise Augmented Generation: não confundir com SHAP/XAI. As regras existentes são de engenharia, não expertise clínica capturada e validada com especialistas. Confirmar a referência/metodologia com o professor.
+MODELO E MÉTRICAS
+Árvore depth=4, min_samples_leaf=500, seed42. Entradas Age (categoria1–13), BMI, PhysActivity e HighBP. O modelo não recebe glicemia, HbA1c ou histórico familiar. Validação limita IMC12–60 apenas para demonstração. Base histórica CDC/UCI253.680 registros; codificação do alvo Diabetes_binary, ano e licença precisam de reconciliação com a fonte original. O alvo não distingue tipo nem horizonte futuro. Fontes documentais de tipo2 não validam esse alvo.
+Treino171.405, validação36.146, teste46.129; divisão por grupos de perfis idênticos nas quatro entradas. ROC AUC~0,7554; AP~0,3264; Brier~0,1188; limiar0,13 escolhido por acurácia balanceada na validação, não médico. Matriz [[22335,16451],[1390,5953]], linhas reais, colunas previstas. Precisão positiva26,57%, sensibilidade81,07%, especificidade57,59%, acurácia61,32%. Conferir números exatos e hash em assets/metrics.json. Nenhum treinamento novo na revisão de20/11. Não ocultar a baixa precisão positiva ao apresentar a AUC.
+CasoB: saída~39,3%, referência~13,4%; hipertensão+11,69p.p., IMC+10,68p.p., idade+3,49p.p., atividade~0. Conferir soma com valores não arredondados. Valores zero e negativos devem aparecer corretamente.
 
-EXECUÇÃO LOCAL
-Extraia o ZIP. No Windows, Python 3.12 com launcher py. Iniciar_Windows.bat cria .venv, instala requirements e executa o Streamlit. Iniciar_Com_Ollama.bat define OLLAMA_MODEL=qwen2.5:3b e chama o iniciador normal, sem exigir repetir set manualmente. Instalar Ollama separadamente e executar no Prompt de Comando: ollama pull qwen2.5:3b. Daniel já instalou e observou geração real com esse modelo, além da mensagem Avaliação registrada. Não incluir .venv, chaves, banco pessoal ou cache de modelos no pacote. A URL válida é a Local URL mostrada pelo terminal; 8501 e 8502 já causaram confusão por instâncias duplicadas. localhost de um servidor publicado não acessa Ollama no notebook do Daniel.
+RECUPERAÇÃO, GERAÇÃO E EXPERTISE
+TF-IDF com filtro explícito por fator; três trechos de uma página NIDDK/NIH (E01idade, E02IMC, E03atividade física). Hipertensão está sem documento elegível; não inventar uma fonte nem concluir ausência de associação. Fontes/trechos/datas em assets/evidence.json. Sínteses cadastradas são distinguíveis de rascunhos gerados.
+Ollama qwen2.5:3b por /api/chat, JSON, temperature0, sem streaming, timeout90s por chamada sequencial. Recebe nome do fator e documentos, não perfil inteiro nem valores SHAP; pode repetir contexto entre casos. Validação verifica estrutura e IDs permitidos, não suporte semântico. Revisão humana continua necessária. RAG é recuperação + geração; SHAP/XAI é explicabilidade; XAG (Expertise Augmented Generation, citado pelo usuário) precisa de referência confirmada com o professor. Não houve captura/validação de expertise clínica com médicos.
 
-ESTADO DO VISUAL
-O usuário aprovou opção 1 verde petróleo para escuro e opção 3 branco/esmeralda para claro. Símbolo: pinheiro branco de três níveis com cantos suaves em quadrado verde arredondado. Ele reclamou repetidamente porque a implementação não correspondia ao mockup. Não prometer fidelidade exata sem conferir a página renderizada.
-O app agora tem botões reais Claro/Escuro e Análise/Evidências/Método; cabeçalho compacto com pinheiro, cartões e fontes. Abre calculando Caso B com dados reais do modelo (perfil fictício), e recalcula quando o caso muda. Não usa números fixos para decorar. Evidências recolhidas por padrão. Gráfico acessível em Ver gráfico de contribuições SHAP. Isso evita que o gráfico ocupe toda a primeira tela. Feedback e limites continuam presentes.
-Bug anterior do gráfico: campo Contribuição (p.p.) continha pontos interpretados por Vega-Lite como caminho. Corrigido para campos internos factor e contribution_pp, preservando rótulo e unidade. Há tabela para conferir valores. Não converter p.p. em porcentagem relativa e não usar SHAP como causalidade.
+CORREÇÕES DESTA REVISÃO
+- Antes, rascunho antigo podia continuar no resultado exportável após nova geração falhar. src/session.py agora limpa antes da tentativa e só publica rascunhos se todas as chamadas terminam. Há regressões para sucesso->erro e falha parcial.
+- Avaliação não começa em Concordo: requer escolha explícita.
+- Gráfico usa factor/contribution_pp, evitando pontos interpretados como caminhos pelo Vega-Lite. Tabela de valores preservada.
+- CSS e especificação do gráfico extraídos; Python formatado; comentários inválidos e JSON não finito bloqueados.
+- Iniciador de testes Windows, iniciador Linux e workflow GitHub Actions incluídos; Actions ainda não rodou remotamente.
 
-VALIDAÇÕES CONCLUÍDAS E LIMITES DA EVIDÊNCIA
-Seis testes automatizados passaram nesta entrega com os módulos reais e o modelo distribuído: soma SHAP, entradas inválidas, recuperação/abstenção, IDs falsos, gravação SQLite e navegação/troca de tema/casos/feedback. Logs em docs/Resultado_testes.txt. Gráfico também foi renderizado isoladamente com Vega-Lite, cobrindo contribuições positivas, negativas e zero. Nenhum treinamento novo foi feito. A geração real foi observada anteriormente no Windows de Daniel; não foi repetida nesta entrega. Banco remoto e implantação pública não foram testados. A revisão visual integral no navegador não foi concluída: navegador remoto não alcançou a prévia local. Os testes de Streamlit não comprovam CSS, responsividade ou fidelidade visual.
+VISUAL
+Direção escolhida: opção1 escuro verde petróleo e opção3 claro branco/esmeralda, pinheiro branco de três níveis arredondados sobre fundo verde. O usuário reclamou de divergência entre mockup e execução. As imagens aprovadas não estão no ZIP: peça-as se precisar comparar exatamente. Não declare fidelidade por inspeção do CSS. O app abre CasoB calculado; evidências e gráfico recolhidos por padrão. Topo não pode ficar cortado; selects, botões, avisos e texto devem ter contraste nos dois temas.
 
-PRÓXIMOS PASSOS EM ORDEM
-1. Executar projeto e comparar screenshots reais dos dois temas com a referência escolhida, em desktop e janela estreita. Conferir campos/select, contraste, fonte, alinhamento e ausência de cores herdadas. Se necessário, corrigir seletores CSS para a versão real do Streamlit. Evitar remendos repetidos; preservar funcionamento.
-2. Abrir o gráfico nos três casos, conferir sinais, soma e tabela. Caso B esperado: saída ~39,3%, referência ~13,4%; hipertensão +11,69 p.p., IMC +10,68 p.p., idade +3,49 p.p., atividade física ~0.
-3. Testar geração, ausência de suporte, modelo desligado, JSON inválido, citação inexistente e troca de caso após gerar. Documentar fidelidade semântica por revisão humana; não basta validar IDs. Preservar distinção entre texto geral e perfil individual.
-4. Conferir rótulo/codificação e licença da base e licença de uso do modelo antes de publicação. Ampliar evidências com fontes rastreáveis e revisão especializada. Não inventar entrevistas, parcerias, validação médica ou resultados.
-5. Definir hospedagem e persistência: atualmente apenas local. PostgreSQL e provedor de geração remoto precisam ser configurados e testados. Não enviar segredos no código.
-6. Concluir relatório acadêmico, divulgação e slides segundo enunciado. Há menções em documentação anterior a 22 tópicos, relatório de 15–25 páginas, divulgação de 5–10 páginas e apresentação de 15 minutos. O enunciado original não está neste pacote e essas exigências NÃO foram verificadas nesta revisão. Solicitar o enunciado antes de tratá-las como obrigatórias. Declarar uso de IA de forma acadêmica. Não inventar avaliações externas, implantação ou revisão clínica.
-7. Organizar divisão: pessoa A código/testes/deploy; pessoa B fontes e expertise; pessoa C documentação, divulgação e apresentação. Um responsável integra alterações para evitar versões divergentes.
+TESTES E LIMITES
+16 testes locais passaram em20/11/2026; log em docs/Resultado_testes.txt. Cobrem núcleo com modelo real, interface por AppTest, esquema de gráfico, armazenamento e geração com HTTP SIMULADO. Incluem falha após sucesso sem rascunho antigo exportável. Ler testes para avaliar cobertura; não confundir AppTest com navegador.
+Sem novo Ollama real, sem Windows real, sem PostgreSQL, sem deploy ou validação clínica nesta revisão. Usuário mostrou geração real e feedback salvo em capturas anteriores. Chromium local não iniciou por restrição de socket, portanto aparência integral/mobile não foi verificada. Não declarar que um arquivo de teste prova revisão visual.
 
-FORMA DE TRABALHAR
-Fale português claro; explique termos técnicos e diga exatamente onde executar cada comando. Comandos de terminal nunca devem ser colados no app.py. Faça backup, preserve diretórios e funções existentes. Entregue arquivos executáveis completos e um resumo do que foi realmente testado. Imagens geradas são só referências visuais e não prova de funcionamento. Comece inspecionando os arquivos, listando discrepâncias objetivas e atacando o maior problema comprovado. Não declare o trabalho pronto enquanto houver pendências de execução, visual ou entrega acadêmica.
+EXECUÇÃO PARA O GRUPO
+Extrair pasta inteira. Python3.12 com py/PATH. Iniciar_Windows.bat cria .venv e instala dependências. Para geração: instalar Ollama e, no CMD, executar ollama pull qwen2.5:3b; manter serviço ativo e abrir Iniciar_Com_Ollama.bat. Usar Local URL do terminal; portas8501/8502 podem indicar instâncias diferentes. Não colar terminal em app.py. Esta versão exige arquivos novos, então não substituir apenas app.py.
+Testar_Windows.bat executa testes após instalar. Comando equivalente na raiz: .venv\Scripts\python.exe -m unittest discover -s tests -v.
+Se py não for encontrado, revisar launcher e abrir terminal novo. Se porta ocupada, conferir instância anterior; não matar todos os processos Python. Conector configurado indica variável, não serviço ativo. ollama list deve listar o modelo. Serviço pode ser iniciado pelo app Ollama ou ollama serve se não estiver ativo.
 
-ADENDO DE REVISÃO DOCUMENTAL — 16/11/2026
-Esta revisão não altera app.py, modelo ou testes. Atualiza o relatório, este prompt e instruções antigas do pacote. Os seis testes são da execução anterior registrada; não são novos testes desta revisão. Não é possível garantir completude das exigências acadêmicas sem o enunciado original.
+PERSISTÊNCIA E HOSPEDAGEM
+SQLite padrão runtime/feedback.sqlite; FUNDAMENTO_DB permite alterar caminho; DATABASE_URL seleciona PostgreSQL. Comentário até500 caracteres; sem dados pessoais. JSON do caso não é backup de avaliações. Comentários/UUID/dataUTC/payload/rating ficam no banco. Não há autenticação ou gestão de usuários. Repetições podem gerar linhas novas. Não incluir segredos/banco pessoal/.venv/CSV/cache Ollama no ZIP. O modelo demonstrativo .joblib está incluído; carregar apenas arquivo confiável. GitHub Pages não executa Streamlit. localhost no servidor não alcança Ollama no notebook. Persistência e geração em hospedagem exigem configuração e teste.
 
-LACUNAS QUE NÃO PODEM SUMIR NA PRÓXIMA PASSAGEM
-- As imagens aprovadas chamadas “opção 1” e “opção 3” não estão incluídas no ZIP. A descrição de cores e pinheiro é suficiente para orientar, mas insuficiente para reproduzir exatamente composição e proporções. Solicitar as imagens ao Daniel se fidelidade exata for a tarefa. Não renumerar opções nem substituir a preferência por outra proposta.
-- Não foram incluídos nomes dos outros dois integrantes, identificação confirmada da disciplina/professor desta proposta, modelo institucional de relatório ou rubrica de avaliação. Não inferir esses dados de outros trabalhos SCOM.
-- Na revisão de código há possível estado antigo na exportação: depois de gerar com sucesso, r['generated_draft'] é preenchido. Se uma nova geração falha no mesmo caso, o código limpa session_state['generated'], mas não remove r['generated_draft']. Assim o JSON baixado e o payload de feedback podem manter o rascunho anterior apesar da mensagem de falha. Confirmar com teste reproduzível, corrigir a limpeza e adicionar regressão antes de declarar esse cenário resolvido. Esta revisão documental NÃO corrigiu o código.
-- “Conector configurado” só indica variável de ambiente, não teste de saúde do Ollama. Modelo instalado, serviço ativo e resposta válida são verificações diferentes.
-- O formulário inicia em “Concordo”; isso pode enviesar avaliações. Considerar seleção inicial neutra e registrar metodologia de coleta. Não chamar feedback acadêmico de validação clínica.
-- Não há teste automatizado de geração real, exportação baixada, repetição de geração após erro ou PostgreSQL. O teste de troca de caso não chega a gerar texto real previamente; não superestimar a cobertura.
+HISTÓRICO GIT
+Importação da base e commits reais desta revisão criados em20/11/2026, autoria técnica Assistente do projeto. Não são desenvolvimento distribuído por dias anteriores. .git e bundle preservam histórico; não renomear autoria para integrantes nem inventar datas. Nenhum remote publicado. docs/Git.md explica como restaurar e enviar a repositório próprio.
 
-DADOS PARA REPRODUÇÃO
-requirements.txt: numpy 2.3.5; pandas 2.2.3; scikit-learn 1.8.0; shap 0.54.1; streamlit 1.67.0; joblib 1.5.3; psycopg[binary] >=3.2,<4. Não trocar versões indiscriminadamente: modelo serializado pode depender delas.
-Árvore: max_depth=4, min_samples_leaf=500, random_state=42. GroupShuffleSplit agrupa perfis idênticos nas quatro entradas. Treino 171.405, validação 36.146, teste 46.129. Classes globais 0:218.334, 1:35.346. Limiar 0,13 selecionado por acurácia balanceada na validação; não é limiar médico. Matriz de confusão [[22335,16451],[1390,5953]]; precisão positiva ~26,57%, sensibilidade ~81,07%, especificidade ~57,59%, acurácia ~61,32%. Apresentar esse desempenho completo, sem destacar somente ROC AUC. Consultar assets/metrics.json para números exatos, hash e fonte.
-O CSV original não está no ZIP; train.py baixa dados e SOBRESCREVE modelo/métricas. Não rodar como simples comando de teste. A coluna Age é categoria, não idade literal; casos fictícios usam códigos 3,9,7. Não adicionar glicemia, HbA1c ou histórico familiar como entradas existentes.
+O QUE FALTA
+1. Confirmar enunciado/prazo/integrantes, montar matriz requisito/arquivo/evidência/responsável/status.
+2. Conferir visual em navegador com imagens aprovadas, dois temas, desktop e janela estreita, três casos e JSON.
+3. Repetir geração ao vivo e revisar fidelidade semântica; ampliar documentos e revisar expertise quando aplicável.
+4. Conferir rótulo/ano/licenças e avaliação metodológica; não tratar métricas como validação clínica.
+5. Se exigido, publicar com banco persistente e geração acessível, testar em outra máquina.
+6. Produzir relatório acadêmico, plano de divulgação e slides conforme enunciado. O PDF anexado é relatório técnico de continuidade, não substitui essas entregas.
+7. Ensaiar a demonstração e dividir: A código/testes; B fontes/expertise; C documentação/slides; um integra versões.
 
-COMANDOS E RECUPERAÇÃO — WINDOWS CMD, NÃO app.py
-Na pasta extraída, executar o iniciador é o caminho principal. Para testar o ambiente já criado:
-.venv\Scripts\python.exe -m unittest discover -s tests -v
-Para checar Ollama:
-ollama --version
-ollama list
-O modelo esperado deve constar como qwen2.5:3b. O serviço precisa estar ativo; se não houver serviço iniciado, abrir Ollama ou iniciar ollama serve em outro terminal. Se a porta já estiver ocupada, não iniciar outra cópia sem conferir a existente.
-Se py não for reconhecido: revisar a instalação/launcher Python 3.12 e abrir um terminal novo. Se uma porta Streamlit estiver ocupada: encerrar somente a instância antiga com Ctrl+C no terminal correspondente ou usar a URL da nova execução. Não matar todos os processos Python.
-Se a tela exibir SyntaxError envolvendo $css = @', foi colado PowerShell em arquivo Python: restaurar app.py íntegro deste pacote. Não editar o ZIP internamente; extrair primeiro.
-Se geração falhar: conferir OLLAMA_MODEL no processo que inicia o app, serviço Ollama, nome exato do modelo e erro do terminal. O timeout atual é 90 segundos por chamada; chamadas por fator são sequenciais. Não simular resposta para mascarar falha.
-
-ESTADO E PERSISTÊNCIA
-DATABASE_URL seleciona PostgreSQL. Sem ela, FUNDAMENTO_DB permite trocar o caminho SQLite; padrão runtime/feedback.sqlite. A tabela guarda id UUID, created_at UTC, payload JSON, rating e comment (até 500 caracteres). Não há painel administrativo de avaliações, autenticação de usuários ou controles de produção concluídos. Cliques repetidos podem registrar novas linhas; decidir política de duplicidade antes da coleta.
-O botão Baixar registro deste caso exporta Fundamento_caso.json; não é backup do banco inteiro. A página Método exporta Fundamento_metricas.json. Preservar runtime antes de migrar uma instalação. Não compartilhar avaliações que contenham dados pessoais. O pacote distribuído não leva esse banco.
-
-CRITÉRIOS DE ACEITAÇÃO E EVIDÊNCIAS A PRODUZIR
-[ ] Enunciado e prazo confirmados; matriz requisito -> arquivo/seção -> evidência -> responsável.
-[ ] Dois temas conferidos no navegador, sem topo cortado, textos ilegíveis ou gráfico vazio; imagens reais de desktop e janela estreita.
-[ ] Casos A/B/C consistentes; soma SHAP correta; gráfico, tabela e JSON concordam.
-[ ] Fontes clicáveis, origem/seção/data corretas; nenhuma fonte inventada; falta de suporte preservada.
-[ ] Geração válida, serviço desligado, resposta inválida, IDs inexistentes, abstenção e erro após sucesso testados; estado anterior não exportado indevidamente.
-[ ] Feedback persiste após reinício; exportação é válida; artefatos pessoais/segredos fora da entrega.
-[ ] Se hospedagem for exigida: link público testado em outra máquina, geração acessível no servidor e banco persistente confirmado.
-[ ] Relatório acadêmico, divulgação e slides coerentes com código/métricas; uso de IA declarado; cada integrante sabe explicar sua parte.
-[ ] ZIP extraído em pasta limpa e executado segundo COMECAR_AQUI; inventário e limitações registrados.
-
-ROTEIRO CURTO PARA DEMONSTRAR
-Abrir Caso B; explicar saída e referência sem chamar de diagnóstico. Abrir gráfico e mostrar contribuições. Abrir um fator com fonte e hipertensão sem fonte. Gerar rascunho somente com serviço ativo, explicar revisão humana. Trocar para Caso A e observar recálculo. Salvar avaliação fictícia e baixar JSON. Mostrar Método e as limitações do experimento. Esse roteiro é sugestão de demonstração, não duração oficial de apresentação.
-
-PRIMEIRA RESPOSTA DA OUTRA IA
-Após ler o ZIP, apresente o que está comprovado, o que depende de execução e o que depende do professor. Priorize a pendência de estado da exportação e a conferência visual; peça somente materiais realmente ausentes. Não dizer “tudo pronto” com base no PDF. Ao alterar qualquer arquivo, mantenha README, relatório e prompt sincronizados e registre os testes reais.
+FORMATO DA SUA RESPOSTA
+Primeiro: resumo fiel do que existe e do que você conseguiu realmente examinar. Depois: tabela de problemas com severidade, arquivo/função, evidência, efeito, correção e como testar. Separar confirmado por leitura, confirmado por execução e hipótese. Dar checklist de aceite e próximos passos em ordem. Se faltar acesso a anexo, dizer exatamente qual, sem inventar conteúdo. Se corrigir código, entregar os arquivos completos alterados e instruções de substituição. Não afirmar zero erros ou conformidade total sem enunciado e execução. Escrever português simples e explicar termos técnicos no contexto do projeto.
