@@ -97,22 +97,8 @@ with st.container(key="topbar"):
 import base64
 
 if dark:
-    forest = (
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 190"><g fill="none" stroke="#208d78" stroke-width="1.4"><path d="M0 182Q140 177 215 138T400 161M32 186Q186 153 292 174T400 164M288 18L257 65H272L235 110H254L212 158H364L322 110H341L304 65H319Z"/><path d="M288 18L257 65 319 65 235 110 341 110 212 158 364 158 288 18M257 65L341 110M319 65L212 158M235 110L364 158" opacity=".65"/></g><g fill="#8be7c3">'
-        + "".join(
-            f'<circle cx="{x}" cy="{y}" r="3"/>'
-            for x, y in [
-                (288, 18),
-                (257, 65),
-                (319, 65),
-                (235, 110),
-                (341, 110),
-                (212, 158),
-                (364, 158),
-            ]
-        )
-        + "</g></svg>"
-    )
+    # O cabeçalho escuro reutiliza o pinheiro sólido da marca lateral.
+    forest = ""
 else:
     forest = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 190"><path fill="#e4f3eb" d="M30 190L245 30 400 190Z"/><path fill="#cae9d9" d="M180 190L335 65 400 125V190Z"/>'
     for x, y, scale in [(230, 105, 0.65), (320, 50, 1.1), (377, 116, 0.55)]:
@@ -129,11 +115,11 @@ css = (
 )
 st.markdown("<style>" + css + "</style>", unsafe_allow_html=True)
 st.markdown(
-    '<section class="f-hero"><h1>Entenda os fatores.</h1><p>Confira as evidências.</p></section>',
+    f'<section class="f-hero f-hero-{appearance.lower()}"><h1>Como o modelo interpreta este perfil?</h1><p>Escolha um dos três casos fictícios para explorar o resultado e conferir suas fontes.</p></section>',
     unsafe_allow_html=True,
 )
 st.markdown(
-    '<div class="f-warning"><strong>Não confirma nem descarta diabetes.</strong><br>O escore representa a classe 1 da base histórica; não é risco clínico validado nem previsão futura.</div>',
+    '<div class="f-warning"><strong>Uso educacional.</strong> Estes casos ilustram um modelo treinado com dados históricos. O aplicativo não determina se uma pessoa tem diabetes nem prevê se ela vai desenvolver a doença.</div>',
     unsafe_allow_html=True,
 )
 with st.sidebar:
@@ -224,15 +210,38 @@ if navigation == "Análise":
         )
     else:
         r = st.session_state["result"]
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Saída do modelo · classe 1", f"{r['score'] * 100:.1f}%")
-        c2.metric("Referência SHAP", f"{r['base'] * 100:.1f}%")
-        supported = sum(bool(d) for d in r["retrieved"].values())
-        c3.metric("Fatores com fontes", f"{supported} / {len(r['factors'])}")
-        st.caption(
-            "Referência + contribuições SHAP = saída do modelo. Contribuição estatística não é causa clínica."
+        st.subheader(f"{case.split(' —')[0]} · Leitura do resultado")
+        activity = "com" if v["PhysActivity"] else "sem"
+        pressure = "com" if v["HighBP"] else "sem"
+        st.write(
+            f"Perfil fictício de {AGES[v['Age'] - 1]} anos, com IMC de {v['BMI']} kg/m², "
+            f"{activity} atividade física fora do trabalho nos últimos 30 dias e "
+            f"{pressure} relato de hipertensão."
         )
-        st.subheader("Evidências por fator")
+        c1, c2 = st.columns(2)
+        score_label = f"{r['score']:.1%}".replace(".", ",")
+        base_label = f"{r['base']:.1%}".replace(".", ",")
+        c1.metric("Registros positivos no grupo deste perfil", score_label)
+        c2.metric("Registros positivos no treino completo", base_label)
+        st.write(
+            f"A árvore reuniu este perfil com registros históricos que seguiram as mesmas regras. "
+            f"Nesse grupo, **{score_label}** dos registros de treino tinham o rótulo positivo "
+            "da base de diabetes."
+        )
+        st.subheader("O que pesou no resultado?")
+        strongest = r["factors"][0]
+        direction = "acima" if strongest["contribution"] >= 0 else "abaixo"
+        magnitude = f"{abs(strongest['contribution']) * 100:.2f}".replace(".", ",")
+        st.write(
+            f"**{strongest['label']}** teve o maior peso neste caso: sua contribuição foi de "
+            f"**{magnitude} pontos percentuais {direction} da referência** de {base_label}. "
+            "Os demais fatores também entram na soma."
+        )
+        supported = sum(bool(d) for d in r["retrieved"].values())
+        st.caption(
+            f"Abra um fator para consultar o contexto documental. Há fontes cadastradas para "
+            f"{supported} dos {len(r['factors'])} fatores. Os valores em pontos percentuais vêm do modelo."
+        )
         for f in r["factors"]:
             docs = r["retrieved"][f["feature"]]
             with st.expander(
