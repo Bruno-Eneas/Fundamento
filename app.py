@@ -5,6 +5,7 @@ import streamlit as st
 from src.core import CASES,AGES,explain,retrieve,evidence,rules
 from src.storage import save_feedback
 from src.generation import generate
+from src.session import generate_result
 ROOT=Path(__file__).parent
 st.set_page_config(page_title='Fundamento | Demonstração',page_icon='🔎',layout='wide')
 # Segredos só são lidos no servidor, nunca colocados na interface.
@@ -128,17 +129,8 @@ if navigation == 'Análise':
         if not os.environ.get('OLLAMA_MODEL'):
             st.write('Ainda não há um modelo de linguagem conectado. A versão atual apresenta busca e sínteses documentais; não simula RAG completo.')
         elif st.button('Gerar rascunho com fontes',type='primary',icon=':material/auto_awesome:'):
-            drafts={}
-            try:
-                with st.spinner('Gerando rascunhos para revisão…'):
-                    for f in r['factors']:
-                        docs=r['retrieved'][f['feature']]
-                        if docs: drafts[f['feature']]=generate(f,docs)
-                st.session_state['generated']=drafts
-                st.session_state.pop('generation_error',None)
-            except Exception:
-                st.session_state.pop('generated',None)
-                st.session_state['generation_error']='Geração indisponível ou resposta inválida. Nenhum texto gerado foi liberado; a consulta documental continua disponível.'
+            with st.spinner('Gerando rascunhos para revisão…'):
+                generate_result(st.session_state, generate)
         if st.session_state.get('generation_error'):st.error(st.session_state['generation_error'])
         if st.session_state.get('generated'):
             st.warning('Rascunho experimental: IDs de fontes foram conferidos; o suporte semântico e a correção clínica exigem revisão humana.')
